@@ -1,0 +1,28 @@
+package br.com.etyllica.paint;
+
+public enum PaintMode {
+	
+	FREE_MARK,
+	RECTANGULAR_MARK,
+	CIRCULAR_MARK,
+	
+	PAINT_CAN,
+	ERASER,
+	DROPPER,
+	ZOOM,
+	
+	PENCIL,
+	PAINT_BRUSH,
+	SPRAY,
+	TEXT,
+	
+	DRAW_LINE,
+	DRAW_CURVE,
+	DRAW_RECT,
+	DRAW_POLY,
+	DRAW_OVAL,
+	DRAW_ROUND,
+	
+	
+}
+
