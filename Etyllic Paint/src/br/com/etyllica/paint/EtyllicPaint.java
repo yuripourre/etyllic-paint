@@ -8,7 +8,6 @@ import br.com.etyllica.core.application.Application;
 import br.com.etyllica.core.control.mouse.MouseButton;
 import br.com.etyllica.core.event.GUIAction;
 import br.com.etyllica.core.event.GUIEvent;
-import br.com.etyllica.core.event.KeyState;
 import br.com.etyllica.core.event.KeyboardEvent;
 import br.com.etyllica.core.event.PointerEvent;
 import br.com.etyllica.core.video.Grafico;
@@ -17,6 +16,8 @@ import br.com.etyllica.gui.icon.ImageIcon;
 
 public class EtyllicPaint extends Application{
 
+	private final int UNDEFINED = -1;
+	
 	private BufferedImage screen;
 
 	private Graphics2D screenGraphics;
@@ -26,6 +27,9 @@ public class EtyllicPaint extends Application{
 	//Mouse Position
 	private int mx = 0;
 	private int my = 0;
+	
+	private int startScreenX = 98;
+	private int startScreenY = 0;
 
 	//private MenuBar menu;
 
@@ -167,7 +171,7 @@ public class EtyllicPaint extends Application{
 
 		screen = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
 		screenGraphics = screen.createGraphics();
-		screenGraphics.setColor(primaryColor);
+		screenGraphics.setColor(Color.WHITE);
 		screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
 
 	}
@@ -179,7 +183,37 @@ public class EtyllicPaint extends Application{
 	@Override
 	public void draw(Grafico g) {
 
-		g.drawImage(screen, 98, y);
+		g.drawImage(screen, startScreenX, startScreenY);
+		
+		if(mode==PaintMode.DRAW_LINE){
+			
+			if(startPointX!=UNDEFINED&&startPointY!=UNDEFINED){
+				
+				g.setColor(primaryColor);
+				g.drawLine(startPointX, startPointY, mx, my);
+				
+			}
+			
+		}
+		
+		if(mode==PaintMode.DRAW_RECT){
+			
+			if(startPointX!=UNDEFINED&&startPointY!=UNDEFINED){
+				
+				drawUndefinedRect(g);
+				
+			}
+			
+		}
+		
+		if(mode==PaintMode.DRAW_OVAL){
+			
+			if(startPointX!=UNDEFINED&&startPointY!=UNDEFINED){
+				drawUndefinedOval(g);
+			}
+			
+		}
+		
 
 	}
 
@@ -196,7 +230,7 @@ public class EtyllicPaint extends Application{
 		my = event.getY();
 
 		//TODO Change to colision
-		if(mx>98){
+		if(mx>startScreenX){
 
 			switch(mode){
 
@@ -206,9 +240,12 @@ public class EtyllicPaint extends Application{
 
 				break;
 
+			case DRAW_LINE:
 			case DRAW_RECT:
+			case DRAW_OVAL:
+			case DRAW_ROUND:
 
-				//drawRectEvent(event);
+				setStartPoint(event);
 
 				break;
 
@@ -241,6 +278,76 @@ public class EtyllicPaint extends Application{
 		}
 
 	}
-
+	
+	private int startPointX = UNDEFINED;
+	private int startPointY = UNDEFINED;
+	
+	private void setStartPoint(PointerEvent event){
+		
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
+			
+			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
+				
+				startPointX = mx;
+				startPointY = my;
+				
+				//System.out.println("Was Undefined "+startPointX+" "+startPointY);
+				
+			}
+			/*else{
+				
+				System.out.println("Was Defined "+startPointX+" "+startPointY);
+				
+				screenGraphics.setColor(primaryColor);
+				screenGraphics.drawLine(startPointX, startPointY, mx, my);
+				
+				startPointX = UNDEFINED;
+				startPointY = UNDEFINED;
+				
+			}*/
+			
+		}
+		
+	}
+	
+	private void drawUndefinedRect(Grafico g){
+		g.setColor(primaryColor);
+		
+		int ix = startPointX;
+		int difx = mx-startPointX;
+		int iy = startPointY;
+		int dify = my-startPointY;
+		
+		if(mx<startPointX){
+			ix = mx;
+			difx =-difx;
+		}
+		if(my<startPointY){
+			iy = my;
+			dify =-dify;
+		}
+		
+		g.drawRect(ix, iy, difx, dify);
+	}
+	
+	private void drawUndefinedOval(Grafico g){
+		g.setColor(primaryColor);
+		
+		int ix = startPointX;
+		int difx = mx-startPointX;
+		int iy = startPointY;
+		int dify = my-startPointY;
+		
+		if(mx<startPointX){
+			ix = mx;
+			difx =-difx;
+		}
+		if(my<startPointY){
+			iy = my;
+			dify =-dify;
+		}
+		
+		g.drawOval(ix, iy, difx, dify);
+	}
 
 }
