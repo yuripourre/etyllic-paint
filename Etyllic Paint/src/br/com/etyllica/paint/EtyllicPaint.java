@@ -73,16 +73,17 @@ public class EtyllicPaint extends Application{
 	@Override
 	public void load() {
 
-		loadingPhrase = "Loading Panel...";
-		panel = new Panel(0,0,startScreenX,h);
-		add(panel);
-		
-		loadingPhrase = "Loading Resources...";
 
 		int toolBarX = 0;
 		int toolBarY = 0;
 		int toolBarColumns = 2;
 		int buttonSize = 48;
+
+		loadingPhrase = "Loading Panel...";
+		panel = new Panel(toolBarX,toolBarY,startScreenX,h);
+		add(panel);
+		
+		loadingPhrase = "Loading Resources...";
 
 		poligonalMark = new Button(toolBarX,toolBarY,buttonSize,buttonSize);
 		add(poligonalMark);
@@ -174,13 +175,13 @@ public class EtyllicPaint extends Application{
 		loadingPhrase = "Loading Screen...";
 
 
-		startScreen();
+		createScreen();
 
 		loading = 100;
 
 	}
 
-	private void startScreen(){
+	private void createScreen(){
 
 		screen = new BufferedImage(w-startScreenX, h-startScreenY, BufferedImage.TYPE_INT_ARGB);
 		screenGraphics = screen.createGraphics();
@@ -305,10 +306,6 @@ public class EtyllicPaint extends Application{
 
 	private void pencilModeEvent(PointerEvent event){
 				
-		if(pencilLeftPressed){
-			System.out.println("Still Pressed");
-		}
-		
 		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
 			pencilLeftPressed = true;
 		}
@@ -324,9 +321,13 @@ public class EtyllicPaint extends Application{
 		}
 		
 		if(pencilLeftPressed){
+			
 			drawPixel(primaryColor);
+			
 		}else if(pencilRightPressed){
+			
 			drawPixel(secundaryColor);
+			
 		}
 				
 	}
@@ -390,9 +391,9 @@ public class EtyllicPaint extends Application{
 	}
 
 	private void drawPixel(Color color){
-		screenGraphics.setColor(color);
-		//screen.setRGB(mx-startScreenX, my-startScreenY, color.getRGB());
-		screenGraphics.drawRect(mx-startScreenX, my-startScreenY, 1, 1);
+		//screenGraphics.setColor(color);
+		screen.setRGB(mx-startScreenX, my-startScreenY, color.getRGB());
+		//screenGraphics.drawRect(mx-startScreenX, my-startScreenY, 1, 1);
 	}
 	
 	private void drawLine(Color color){
