@@ -8,13 +8,13 @@ public class PaintFrame extends Etyllica {
 	private static final long serialVersionUID = 1L;
 
 	public PaintFrame() {
-		super(640, 480);
+		super(800, 480);
 	}
 	
 	@Override
 	public void startGame() {
 		
-		setMainApplication(new EtyllicPaint());
+		setMainApplication(new EtyllicPaint(w,h));
 	}
 	
 }
