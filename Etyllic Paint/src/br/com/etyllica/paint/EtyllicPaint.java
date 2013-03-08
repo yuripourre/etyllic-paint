@@ -11,9 +11,10 @@ import br.com.etyllica.core.event.GUIEvent;
 import br.com.etyllica.core.event.KeyboardEvent;
 import br.com.etyllica.core.event.PointerEvent;
 import br.com.etyllica.core.video.Grafico;
-import br.com.etyllica.gui.Button;
 import br.com.etyllica.gui.Panel;
+import br.com.etyllica.gui.RadioGroup;
 import br.com.etyllica.gui.icon.ImageIcon;
+import br.com.etyllica.gui.radio.CheckButtonRadio;
 
 public class EtyllicPaint extends Application{
 
@@ -43,36 +44,35 @@ public class EtyllicPaint extends Application{
 	
 	private Panel panel;
 	
-	private Button poligonalMark;
-	private Button rectangularlMark;
+	private CheckButtonRadio freeMark;
+	private CheckButtonRadio rectangularlMark;
 
-	private Button eraser;
-	private Button paintCan;
+	private CheckButtonRadio eraser;
+	private CheckButtonRadio paintCan;
 
-	private Button dropper;
-	private Button magnify;
+	private CheckButtonRadio dropper;
+	private CheckButtonRadio magnify;
 
-	private Button pencil;
-	private Button brush;
+	private CheckButtonRadio pencil;
+	private CheckButtonRadio brush;
 
-	private Button sprayCan;
-	private Button text;
+	private CheckButtonRadio sprayCan;
+	private CheckButtonRadio text;
 
-	private Button line;
-	private Button curve;
+	private CheckButtonRadio line;
+	private CheckButtonRadio curve;
 
-	private Button rect;
-	private Button poly;
+	private CheckButtonRadio rect;
+	private CheckButtonRadio poly;
 
-	private Button oval;
-	private Button round;
+	private CheckButtonRadio oval;
+	private CheckButtonRadio round;
 
 	private Color primaryColor = Color.BLACK;
 	private Color secundaryColor = Color.WHITE;
 
 	@Override
 	public void load() {
-
 
 		int toolBarX = 0;
 		int toolBarY = 0;
@@ -83,91 +83,112 @@ public class EtyllicPaint extends Application{
 		panel = new Panel(toolBarX,toolBarY,startScreenX,h);
 		add(panel);
 		
+		RadioGroup toolbarGroup = new RadioGroup();
+		
 		loadingPhrase = "Loading Resources...";
 
-		poligonalMark = new Button(toolBarX,toolBarY,buttonSize,buttonSize);
-		add(poligonalMark);
+		freeMark = new CheckButtonRadio(toolBarX,toolBarY,buttonSize,buttonSize);
+		toolbarGroup.add(freeMark);
+		freeMark.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.FREE_MARK));
+		add(freeMark);
 
-		rectangularlMark = new Button(toolBarX+buttonSize+1,toolBarY,buttonSize,buttonSize);
+		rectangularlMark = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY,buttonSize,buttonSize);
+		toolbarGroup.add(rectangularlMark);
+		rectangularlMark.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.RECTANGULAR_MARK));
 		add(rectangularlMark);
 
-		eraser = new Button(toolBarX,toolBarY+buttonSize*1+1,buttonSize,buttonSize);
+		eraser = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*1+1,buttonSize,buttonSize);
 		//From http://findicons.com/icon/441226/eraser?id=449660
 		eraser.setLabel(new ImageIcon(8, 8, "eraser.png"));
+		eraser.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.ERASER));
+		toolbarGroup.add(eraser);
 		add(eraser);
 
 
-		paintCan = new Button(toolBarX+buttonSize+1,toolBarY+buttonSize*1+1,buttonSize,buttonSize);
+		paintCan = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*1+1,buttonSize,buttonSize);
 		//http://www.softicons.com/free-icons/toolbar-icons/some-icons-by-scardi-shek/paint-icon
 		paintCan.setLabel(new ImageIcon(8, 8, "paint.png"));
 		paintCan.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.PAINT_CAN));
+		toolbarGroup.add(paintCan);
 		add(paintCan);
 
 
-		dropper = new Button(toolBarX,toolBarY+buttonSize*2+2,buttonSize,buttonSize);
+		dropper = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*2+2,buttonSize,buttonSize);
 		//http://findicons.com/icon/238374/color_picker?id=238374
 		dropper.setLabel(new ImageIcon(8, 8, "dropper.png"));
 		dropper.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DROPPER));
+		toolbarGroup.add(dropper);
 		add(dropper);
 
-		magnify = new Button(toolBarX+buttonSize+1,toolBarY+buttonSize*2+2,buttonSize,buttonSize);
+		magnify = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*2+2,buttonSize,buttonSize);
 		//http://findicons.com/icon/219105/find?id=356081
 		magnify.setLabel(new ImageIcon(8, 8, "magnify.png"));
 		magnify.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.ZOOM));
+		toolbarGroup.add(magnify);
 		add(magnify);
 
 
-		pencil = new Button(toolBarX,toolBarY+buttonSize*3+3,buttonSize,buttonSize);
+		pencil = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*3+3,buttonSize,buttonSize);
 		//http://findicons.com/icon/226814/pencil?width=32
 		pencil.setLabel(new ImageIcon(8, 8, "pencil.png"));
 		pencil.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.PENCIL));
+		toolbarGroup.add(pencil);
 		add(pencil);
 
-		brush = new Button(toolBarX+buttonSize+1,toolBarY+buttonSize*3+3,buttonSize,buttonSize);
+		brush = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*3+3,buttonSize,buttonSize);
 		//http://findicons.com/icon/237997/paintbrush?width=32
 		brush.setLabel(new ImageIcon(8, 8, "paintbrush.png"));
 		brush.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.PAINT_BRUSH));
+		toolbarGroup.add(brush);
 		add(brush);
 
-		sprayCan = new Button(toolBarX,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
+		sprayCan = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
 		//http://www.keywordpictures.com/abuse/spray%20can%20icon///
 		sprayCan.setLabel(new ImageIcon(8, 8, "spray_can.png"));
 		sprayCan.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.SPRAY));
+		toolbarGroup.add(sprayCan);
 		add(sprayCan);
 
-		text = new Button(toolBarX+buttonSize+1,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
+		text = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
 		text.setLabel(new ImageIcon(8, 8, "text.png"));
 		text.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.TEXT));
+		toolbarGroup.add(text);
 		add(text);
 
-		line = new Button(toolBarX,toolBarY+buttonSize*5+5,buttonSize,buttonSize);
+		line = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*5+5,buttonSize,buttonSize);
 		line.setLabel(new ImageIcon(8, 8, "line.png"));
 		line.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_LINE));
+		toolbarGroup.add(line);
 		add(line);
 
-		curve = new Button(toolBarX+buttonSize+1,toolBarY+buttonSize*5+5,buttonSize,buttonSize);
+		curve = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*5+5,buttonSize,buttonSize);
 		curve.setLabel(new ImageIcon(8, 8, "curve.png"));
 		curve.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_CURVE));
+		toolbarGroup.add(curve);
 		add(curve);
 
-		rect = new Button(toolBarX,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
+		rect = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
 		rect.setLabel(new ImageIcon(8, 8, "rect.png"));
 		rect.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_RECT));
+		toolbarGroup.add(rect);
 		add(rect);
 
-		poly = new Button(toolBarX+buttonSize+1,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
+		poly = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
 		poly.setLabel(new ImageIcon(8, 8, "poly.png"));
 		poly.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_POLY));
+		toolbarGroup.add(poly);
 		add(poly);
 
-		oval = new Button(toolBarX,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
+		oval = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
 		oval.setLabel(new ImageIcon(8, 8, "oval.png"));
 		oval.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_OVAL));
+		toolbarGroup.add(oval);
 		add(oval);
 
-		round = new Button(toolBarX+buttonSize+1,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
+		round = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
 		round.setLabel(new ImageIcon(8, 8, "round.png"));
 		round.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_ROUND));
+		toolbarGroup.add(round);
 		add(round);
 
 		loading = 80;
