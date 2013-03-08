@@ -15,6 +15,7 @@ public enum PaintMode {
 	PAINT_BRUSH,
 	SPRAY,
 	TEXT,
+	WAND,
 	
 	DRAW_LINE,
 	DRAW_CURVE,
@@ -22,7 +23,6 @@ public enum PaintMode {
 	DRAW_POLY,
 	DRAW_OVAL,
 	DRAW_ROUND,
-	
 	
 }
 
