@@ -11,16 +11,17 @@ import br.com.etyllica.core.event.GUIEvent;
 import br.com.etyllica.core.event.KeyboardEvent;
 import br.com.etyllica.core.event.PointerEvent;
 import br.com.etyllica.core.video.Grafico;
+import br.com.etyllica.gui.Button;
 import br.com.etyllica.gui.Panel;
 import br.com.etyllica.gui.RadioGroup;
 import br.com.etyllica.gui.icon.ImageIcon;
+import br.com.etyllica.gui.label.ColorLabel;
 import br.com.etyllica.gui.radio.CheckButtonRadio;
 
 public class EtyllicPaint extends Application{
 
 	public EtyllicPaint(int w, int h) {
 		super(w, h);
-		// TODO Auto-generated constructor stub
 	}
 
 	private final int UNDEFINED = -1;
@@ -70,7 +71,17 @@ public class EtyllicPaint extends Application{
 
 	private Color primaryColor = Color.BLACK;
 	private Color secundaryColor = Color.WHITE;
+	private Color undefinedColor = Color.BLACK;
+	
+	//Color Buttons
+	private Button blackButton;
+	private Button redButton;
+	private Button greenButton;
+	private Button blueButton;
+	private Button whiteButton;
 
+	private int colorToolBarH = 85;
+	
 	@Override
 	public void load() {
 
@@ -191,7 +202,13 @@ public class EtyllicPaint extends Application{
 		toolbarGroup.add(round);
 		add(round);
 
-		loading = 80;
+		loading = 70;
+
+		loadingPhrase = "Loading Colors...";
+		
+		createButtons(buttonSize);
+		
+		loading = 90;
 
 		loadingPhrase = "Loading Screen...";
 
@@ -202,9 +219,54 @@ public class EtyllicPaint extends Application{
 
 	}
 
+	private void createButtons(int buttonSize){
+		
+		int colorButtonsY = h-colorToolBarH;
+		
+		blackButton = new Button(300+buttonSize*0+0, colorButtonsY, buttonSize,buttonSize);
+		ColorLabel blackLabel = new ColorLabel(0,0,20,20);
+		blackLabel.setColor(Color.BLACK);
+		blackButton.setCenterLabel(blackLabel);
+		blackButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", blackLabel.getColor()));
+		blackButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", blackLabel.getColor()));
+		add(blackButton);
+		
+		redButton = new Button(300+buttonSize*1+1, colorButtonsY, buttonSize,buttonSize);
+		ColorLabel redLabel = new ColorLabel(0,0,20,20);
+		redLabel.setColor(Color.RED);
+		redButton.setCenterLabel(redLabel);
+		redButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", redLabel.getColor()));
+		redButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", redLabel.getColor()));
+		add(redButton);
+		
+		greenButton = new Button(300+buttonSize*2+2, colorButtonsY, buttonSize,buttonSize);
+		ColorLabel greenLabel = new ColorLabel(0,0,20,20);
+		greenLabel.setColor(Color.GREEN);
+		greenButton.setCenterLabel(greenLabel);
+		greenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", greenLabel.getColor()));
+		greenButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", greenLabel.getColor()));
+		add(greenButton);
+		
+		blueButton = new Button(300+buttonSize*3+3, colorButtonsY, buttonSize,buttonSize);
+		ColorLabel blueLabel = new ColorLabel(0,0,20,20);
+		blueLabel.setColor(Color.BLUE);
+		blueButton.setCenterLabel(blueLabel);
+		blueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", blueLabel.getColor()));
+		blueButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", blueLabel.getColor()));
+		add(blueButton);
+		
+		whiteButton = new Button(300+buttonSize*0+0, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
+		ColorLabel whiteLabel = new ColorLabel(0,0,20,20);
+		whiteLabel.setColor(Color.WHITE);
+		whiteButton.setCenterLabel(whiteLabel);
+		whiteButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", whiteLabel.getColor()));
+		whiteButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", whiteLabel.getColor()));
+		add(whiteButton);
+	}
+	
 	private void createScreen(){
-
-		screen = new BufferedImage(w-startScreenX, h-startScreenY, BufferedImage.TYPE_INT_ARGB);
+		
+		screen = new BufferedImage(w-startScreenX, h-startScreenY-colorToolBarH, BufferedImage.TYPE_INT_ARGB);
 		screenGraphics = screen.createGraphics();
 		screenGraphics.setColor(Color.WHITE);
 		screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
@@ -213,6 +275,14 @@ public class EtyllicPaint extends Application{
 
 	public void setMode(PaintMode mode) {
 		this.mode = mode;
+	}
+	
+	public void setPrimaryColor(Color color) {
+		this.primaryColor = color;
+	}
+	
+	public void setSecundaryColor(Color color) {
+		this.secundaryColor = color;
 	}
 
 	@Override
@@ -224,7 +294,7 @@ public class EtyllicPaint extends Application{
 
 			if(startPointX!=UNDEFINED&&startPointY!=UNDEFINED){
 
-				g.setColor(primaryColor);
+				g.setColor(undefinedColor);
 				g.drawLine(startPointX, startPointY, mx, my);
 
 			}
@@ -264,7 +334,7 @@ public class EtyllicPaint extends Application{
 		my = event.getY();
 
 		//TODO Change to colision
-		if(mx>startScreenX){
+		if((mx>startScreenX)&&(my>startScreenY)){
 
 			switch(mode){
 
@@ -360,10 +430,26 @@ public class EtyllicPaint extends Application{
 			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
 
 				setStartPoint();
+				undefinedColor = primaryColor;
 
 			}else{
 
-				drawLine(primaryColor);
+				drawLine();
+
+			}
+
+		}
+		
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+
+			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
+
+				setStartPoint();
+				undefinedColor = secundaryColor;
+
+			}else{
+
+				drawLine();
 
 			}
 
@@ -377,10 +463,27 @@ public class EtyllicPaint extends Application{
 			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
 
 				setStartPoint();
+				undefinedColor = primaryColor;						
 
 			}else{
 
-				drawRect(primaryColor);
+				drawRect();
+
+			}
+
+		}
+		
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+
+			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
+
+				setStartPoint();
+				undefinedColor = secundaryColor;
+				
+
+			}else{
+
+				drawRect();
 
 			}
 
@@ -394,10 +497,26 @@ public class EtyllicPaint extends Application{
 			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
 
 				setStartPoint();
+				undefinedColor = primaryColor;
 
 			}else{
 
-				drawOval(primaryColor);
+				drawOval();
+
+			}
+
+		}
+		
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+
+			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
+
+				setStartPoint();
+				undefinedColor = secundaryColor;
+
+			}else{
+
+				drawOval();
 
 			}
 
@@ -408,7 +527,7 @@ public class EtyllicPaint extends Application{
 
 		startPointX = mx;
 		startPointY = my;
-
+		
 	}
 
 	private void drawPixel(Color color){
@@ -417,16 +536,16 @@ public class EtyllicPaint extends Application{
 		//screenGraphics.drawRect(mx-startScreenX, my-startScreenY, 1, 1);
 	}
 	
-	private void drawLine(Color color){
-		screenGraphics.setColor(color);
+	private void drawLine(){
+		screenGraphics.setColor(undefinedColor);
 		screenGraphics.drawLine(startPointX-startScreenX, startPointY-startScreenY, mx-startScreenX, my-startScreenY);
 
 		startPointX = UNDEFINED;
 		startPointY = UNDEFINED;
 	}
 	
-	private void drawRect(Color color){
-		screenGraphics.setColor(color);
+	private void drawRect(){
+		screenGraphics.setColor(undefinedColor);
 
 		int ix = startPointX;
 		int difx = mx-startPointX;
@@ -448,8 +567,8 @@ public class EtyllicPaint extends Application{
 		startPointY = UNDEFINED;
 	}
 	
-	private void drawOval(Color color){
-		screenGraphics.setColor(color);
+	private void drawOval(){
+		screenGraphics.setColor(undefinedColor);
 
 		int ix = startPointX;
 		int difx = mx-startPointX;
@@ -473,7 +592,8 @@ public class EtyllicPaint extends Application{
 	
 
 	private void drawUndefinedRect(Grafico g){
-		g.setColor(primaryColor);
+		
+		g.setColor(undefinedColor);
 
 		int ix = startPointX;
 		int difx = mx-startPointX;
@@ -493,7 +613,7 @@ public class EtyllicPaint extends Application{
 	}
 
 	private void drawUndefinedOval(Grafico g){
-		g.setColor(primaryColor);
+		g.setColor(undefinedColor);
 
 		int ix = startPointX;
 		int difx = mx-startPointX;
