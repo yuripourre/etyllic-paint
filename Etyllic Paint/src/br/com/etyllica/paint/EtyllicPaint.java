@@ -12,6 +12,7 @@ import br.com.etyllica.core.event.KeyboardEvent;
 import br.com.etyllica.core.event.PointerEvent;
 import br.com.etyllica.core.video.Grafico;
 import br.com.etyllica.gui.Button;
+import br.com.etyllica.gui.Panel;
 import br.com.etyllica.gui.icon.ImageIcon;
 
 public class EtyllicPaint extends Application{
@@ -39,6 +40,9 @@ public class EtyllicPaint extends Application{
 	//private MenuBar menu;
 
 	//private ToolBar toolBar;
+	
+	private Panel panel;
+	
 	private Button poligonalMark;
 	private Button rectangularlMark;
 
@@ -69,6 +73,10 @@ public class EtyllicPaint extends Application{
 	@Override
 	public void load() {
 
+		loadingPhrase = "Loading Panel...";
+		panel = new Panel(0,0,startScreenX,h);
+		add(panel);
+		
 		loadingPhrase = "Loading Resources...";
 
 		int toolBarX = 0;
@@ -219,7 +227,6 @@ public class EtyllicPaint extends Application{
 
 		}
 
-
 	}
 
 	@Override
@@ -230,7 +237,7 @@ public class EtyllicPaint extends Application{
 
 	@Override
 	public GUIEvent updateMouse(PointerEvent event) {
-
+		
 		mx = event.getX();
 		my = event.getY();
 
@@ -243,6 +250,10 @@ public class EtyllicPaint extends Application{
 				paintCanModeEvent(event);
 				break;
 
+			case PENCIL:
+				pencilModeEvent(event);
+				break;
+				
 			case DRAW_LINE:
 				lineModeEvent(event);
 				break;
@@ -288,7 +299,38 @@ public class EtyllicPaint extends Application{
 
 	private int startPointX = UNDEFINED;
 	private int startPointY = UNDEFINED;
+	
+	private boolean pencilLeftPressed = false;
+	private boolean pencilRightPressed = false;
 
+	private void pencilModeEvent(PointerEvent event){
+				
+		if(pencilLeftPressed){
+			System.out.println("Still Pressed");
+		}
+		
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
+			pencilLeftPressed = true;
+		}
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
+			pencilLeftPressed = false;
+		}
+		
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_RIGHT)){
+			pencilRightPressed = true;
+		}
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+			pencilRightPressed = false;
+		}
+		
+		if(pencilLeftPressed){
+			drawPixel(primaryColor);
+		}else if(pencilRightPressed){
+			drawPixel(secundaryColor);
+		}
+				
+	}
+	
 	private void lineModeEvent(PointerEvent event){
 
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
@@ -347,6 +389,12 @@ public class EtyllicPaint extends Application{
 
 	}
 
+	private void drawPixel(Color color){
+		screenGraphics.setColor(color);
+		//screen.setRGB(mx-startScreenX, my-startScreenY, color.getRGB());
+		screenGraphics.drawRect(mx-startScreenX, my-startScreenY, 1, 1);
+	}
+	
 	private void drawLine(Color color){
 		screenGraphics.setColor(color);
 		screenGraphics.drawLine(startPointX-startScreenX, startPointY-startScreenY, mx-startScreenX, my-startScreenY);
