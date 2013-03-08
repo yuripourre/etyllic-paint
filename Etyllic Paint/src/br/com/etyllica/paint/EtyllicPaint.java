@@ -80,7 +80,8 @@ public class EtyllicPaint extends Application{
 	private Button blueButton;
 	private Button whiteButton;
 
-	private int colorToolBarH = 85;
+	private int colorToolBarH = 0;
+	private int colorToolBarY = 0;
 	
 	@Override
 	public void load() {
@@ -89,6 +90,8 @@ public class EtyllicPaint extends Application{
 		int toolBarY = 0;
 		int toolBarColumns = 2;
 		int buttonSize = 48;
+		colorToolBarH = buttonSize*2-1;
+		colorToolBarY = h-colorToolBarH;
 
 		loadingPhrase = "Loading Panel...";
 		panel = new Panel(toolBarX,toolBarY,startScreenX,h);
@@ -334,7 +337,7 @@ public class EtyllicPaint extends Application{
 		my = event.getY();
 
 		//TODO Change to colision
-		if((mx>startScreenX)&&(my>startScreenY)){
+		if((mx>startScreenX)&&(my>startScreenY&&(my<colorToolBarY))){
 
 			switch(mode){
 
