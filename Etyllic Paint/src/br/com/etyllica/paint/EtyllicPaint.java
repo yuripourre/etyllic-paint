@@ -2,6 +2,7 @@ package br.com.etyllica.paint;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import br.com.etyllica.core.application.Application;
@@ -17,6 +18,7 @@ import br.com.etyllica.gui.RadioGroup;
 import br.com.etyllica.gui.icon.ImageIcon;
 import br.com.etyllica.gui.label.ColorLabel;
 import br.com.etyllica.gui.radio.CheckButtonRadio;
+import br.com.etyllica.util.SVGColor;
 
 public class EtyllicPaint extends Application{
 
@@ -38,6 +40,9 @@ public class EtyllicPaint extends Application{
 
 	private int startScreenX = 98;
 	private int startScreenY = 0;
+	
+	private int screenW = 0;
+	private int screenH = 0;
 
 	//private MenuBar menu;
 
@@ -79,9 +84,14 @@ public class EtyllicPaint extends Application{
 	private Button greenButton;
 	private Button blueButton;
 	private Button whiteButton;
+	private Button pinkButton;
+	private Button purpleButton;
+	private Button orangeButton;
 
 	private int colorToolBarH = 0;
 	private int colorToolBarY = 0;
+	
+	private int zoom = 0;
 	
 	@Override
 	public void load() {
@@ -218,6 +228,9 @@ public class EtyllicPaint extends Application{
 
 		createScreen();
 
+		setMode(PaintMode.RECTANGULAR_MARK);
+		rectangularlMark.mark();
+		
 		loading = 100;
 
 	}
@@ -265,11 +278,38 @@ public class EtyllicPaint extends Application{
 		whiteButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", whiteLabel.getColor()));
 		whiteButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", whiteLabel.getColor()));
 		add(whiteButton);
+		
+		pinkButton = new Button(300+buttonSize*1+1, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
+		ColorLabel pinkLabel = new ColorLabel(0,0,20,20);
+		pinkLabel.setColor(Color.PINK);
+		pinkButton.setCenterLabel(pinkLabel);
+		pinkButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", pinkLabel.getColor()));
+		pinkButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", pinkLabel.getColor()));
+		add(pinkButton);
+				
+		orangeButton = new Button(300+buttonSize*2+2, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
+		ColorLabel orangeLabel = new ColorLabel(0,0,20,20);
+		orangeLabel.setColor(SVGColor.ORANGE);
+		orangeButton.setCenterLabel(orangeLabel);
+		orangeButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", orangeLabel.getColor()));
+		orangeButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", orangeLabel.getColor()));
+		add(orangeButton);
+		
+		purpleButton = new Button(300+buttonSize*3+3, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
+		ColorLabel purpleLabel = new ColorLabel(0,0,20,20);
+		purpleLabel.setColor(SVGColor.PURPLE);
+		purpleButton.setCenterLabel(purpleLabel);
+		purpleButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", purpleLabel.getColor()));
+		purpleButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", purpleLabel.getColor()));
+		add(purpleButton);
 	}
 	
 	private void createScreen(){
 		
-		screen = new BufferedImage(w-startScreenX, h-startScreenY-colorToolBarH, BufferedImage.TYPE_INT_ARGB);
+		screenW = w-startScreenX;
+		screenH = h-startScreenY-colorToolBarH;
+		
+		screen = new BufferedImage(screenW, screenH, BufferedImage.TYPE_INT_ARGB);
 		screenGraphics = screen.createGraphics();
 		screenGraphics.setColor(Color.WHITE);
 		screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
@@ -287,11 +327,24 @@ public class EtyllicPaint extends Application{
 	public void setSecundaryColor(Color color) {
 		this.secundaryColor = color;
 	}
+	
+	
 
 	@Override
 	public void draw(Grafico g) {
 
-		g.drawImage(screen, startScreenX, startScreenY);
+		if(zoom>0){
+			g.setTransform(AffineTransform.getScaleInstance(zoom+1, zoom+1));
+			g.drawImage(screen, startScreenX, startScreenY);
+			g.setTransform(AffineTransform.getScaleInstance(1, 1));
+		}else if(zoom<0){
+			g.setTransform(AffineTransform.getScaleInstance((double)(1.0/(-zoom+1)), (double)(1.0/(-zoom+1))));
+			g.drawImage(screen, startScreenX, startScreenY);
+			g.setTransform(AffineTransform.getScaleInstance(1, 1));
+		}
+		else{
+			g.drawImage(screen, startScreenX, startScreenY);
+		}
 
 		if(mode==PaintMode.DRAW_LINE){
 
@@ -364,6 +417,11 @@ public class EtyllicPaint extends Application{
 
 			}
 
+		}
+		
+		if(event.getPressed(MouseButton.MOUSE_WHEEL_UP)||event.getPressed(MouseButton.MOUSE_WHEEL_DOWN)){
+			zoom-=event.getAmount();
+			System.out.println("Zoom = "+zoom);
 		}
 
 		return GUIEvent.NONE;
