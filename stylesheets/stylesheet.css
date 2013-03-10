@@ -110,7 +110,7 @@ footer p {
 
 a {
   text-decoration: none;
-  color: #007edf;
+  color: #ff275a;
   text-shadow: none;
 
   transition: color 0.5s ease;
@@ -126,13 +126,13 @@ a {
 }
 
 #main_content a:hover {
-  color: #0069ba;
-  text-shadow: #0090ff 0px 0px 2px;
+  color: #ef2050;
+  text-shadow: #ff275A 0px 0px 2px;
 }
 
 footer a:hover {
-  color: #43adff;
-  text-shadow: #0090ff 0px 0px 2px;
+  color: #ef2050;
+  text-shadow: #ff275A 0px 0px 2px;
 }
 
 em {
@@ -285,7 +285,7 @@ Full-Width Styles
   z-index: 10;
   padding: 10px 50px 10px 10px;
   color: #fff;
-  background: url('../images/blacktocat.png') #0090ff no-repeat 95% 50%;
+  background: url('../images/blacktocat.png') #ff275A no-repeat 95% 50%;
   font-weight: 700;
   box-shadow: 0 0 10px rgba(0,0,0,.5);
   border-bottom-left-radius: 2px;
@@ -293,12 +293,12 @@ Full-Width Styles
 }
 
 #header_wrap {
-  background: #212121;
-  background: -moz-linear-gradient(top, #373737, #212121);
-  background: -webkit-linear-gradient(top, #373737, #212121);
-  background: -ms-linear-gradient(top, #373737, #212121);
-  background: -o-linear-gradient(top, #373737, #212121);
-  background: linear-gradient(top, #373737, #212121);
+  background: #BE4A4A;
+  background: -moz-linear-gradient(top, #373737, #BE4A4A);
+  background: -webkit-linear-gradient(top, #373737, #BE4A4A);
+  background: -ms-linear-gradient(top, #373737, #BE4A4A);
+  background: -o-linear-gradient(top, #373737, #BE4A4A);
+  background: linear-gradient(top, #373737, #BE4A4A);
 }
 
 #header_wrap .inner {
