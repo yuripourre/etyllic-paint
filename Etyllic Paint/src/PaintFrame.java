@@ -8,7 +8,7 @@ public class PaintFrame extends Etyllica {
 	private static final long serialVersionUID = 1L;
 
 	public PaintFrame() {
-		super(800, 480);
+		super(960, 540);
 	}
 	
 	@Override
