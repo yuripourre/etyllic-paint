@@ -27,7 +27,8 @@ public class EtyllicPaint extends Application{
 		super(w, h);
 	}
 
-	private final int UNDEFINED = -1;
+	//private final int UNDEFINED = -1;
+	private boolean undefined = false;
 
 	private BufferedImage screen;
 
@@ -41,18 +42,18 @@ public class EtyllicPaint extends Application{
 
 	private int startScreenX = 98;
 	private int startScreenY = 0;
-	
+
 	private int screenW = 0;
 	private int screenH = 0;
 
 	//private MenuBar menu;
 
 	//private ToolBar toolBar;
-	
+
 	private Panel panel;
-	
+
 	private CheckButtonRadio freeMark;
-	private CheckButtonRadio rectangularlMark;
+	private CheckButtonRadio rectangularMark;
 
 	private CheckButtonRadio eraser;
 	private CheckButtonRadio paintCan;
@@ -78,7 +79,7 @@ public class EtyllicPaint extends Application{
 	private Color primaryColor = Color.BLACK;
 	private Color secundaryColor = Color.WHITE;
 	private Color undefinedColor = Color.BLACK;
-	
+
 	//Color Buttons
 	//UpperLine
 	private Button blackButton;
@@ -95,7 +96,7 @@ public class EtyllicPaint extends Application{
 	private Button savageBlueButton;
 	private Button lilacButton;
 	private Button woodBrownButton;
-	
+
 	//Lower Line
 	private Button whiteButton;
 	private Button lightGrayButton;
@@ -111,13 +112,13 @@ public class EtyllicPaint extends Application{
 	private Button lavendarButton;
 	private Button darkRoseButton;
 	private Button coralButton;
-	
+
 
 	private int colorToolBarH = 0;
 	private int colorToolBarY = 0;
-	
+
 	private int zoom = 0;
-	
+
 	@Override
 	public void load() {
 
@@ -131,20 +132,22 @@ public class EtyllicPaint extends Application{
 		loadingPhrase = "Loading Panel...";
 		panel = new Panel(toolBarX,toolBarY,startScreenX,h);
 		add(panel);
-		
+
 		RadioGroup toolbarGroup = new RadioGroup();
-		
+
 		loadingPhrase = "Loading Resources...";
 
 		freeMark = new CheckButtonRadio(toolBarX,toolBarY,buttonSize,buttonSize);
+		freeMark.setLabel(new ImageIcon(8, 8, "freemark.png"));
 		toolbarGroup.add(freeMark);
 		freeMark.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.FREE_MARK));
 		add(freeMark);
 
-		rectangularlMark = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY,buttonSize,buttonSize);
-		toolbarGroup.add(rectangularlMark);
-		rectangularlMark.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.RECTANGULAR_MARK));
-		add(rectangularlMark);
+		rectangularMark = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY,buttonSize,buttonSize);
+		rectangularMark.setLabel(new ImageIcon(8, 8, "rectmark.png"));
+		toolbarGroup.add(rectangularMark);
+		rectangularMark.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.RECTANGULAR_MARK));
+		add(rectangularMark);
 
 		eraser = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*1+1,buttonSize,buttonSize);
 		//From http://findicons.com/icon/441226/eraser?id=449660
@@ -243,9 +246,9 @@ public class EtyllicPaint extends Application{
 		loading = 70;
 
 		loadingPhrase = "Loading Colors...";
-		
+
 		createButtons(buttonSize);
-		
+
 		loading = 90;
 
 		loadingPhrase = "Loading Screen...";
@@ -254,17 +257,17 @@ public class EtyllicPaint extends Application{
 		createScreen();
 
 		setMode(PaintMode.RECTANGULAR_MARK);
-		rectangularlMark.mark();
-		
+		rectangularMark.mark();
+
 		loading = 100;
 
 	}
 
 	private void createButtons(int buttonSize){
-		
+
 		int colorButtonsX = 180;
 		int colorButtonsY = h-colorToolBarH;
-		
+
 		blackButton = new Button(colorButtonsX+buttonSize*0+0, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel blackLabel = new ColorLabel(0,0,26,26);
 		blackLabel.setColor(Color.BLACK);
@@ -273,7 +276,7 @@ public class EtyllicPaint extends Application{
 		blackButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", blackLabel.getColor()));
 		blackButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(blackButton);
-		
+
 		grayButton = new Button(colorButtonsX+buttonSize*1+1, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel grayLabel = new ColorLabel(0,0,26,26);
 		grayLabel.setColor(SVGColor.GRAY);
@@ -282,7 +285,7 @@ public class EtyllicPaint extends Application{
 		grayButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", grayLabel.getColor()));
 		grayButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(grayButton);
-		
+
 		maroonButton = new Button(colorButtonsX+buttonSize*2+2, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel maroonLabel = new ColorLabel(0,0,26,26);
 		maroonLabel.setColor(SVGColor.MAROON);
@@ -291,7 +294,7 @@ public class EtyllicPaint extends Application{
 		maroonButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", maroonLabel.getColor()));
 		maroonButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(maroonButton);
-		
+
 		oliveButton = new Button(colorButtonsX+buttonSize*3+3, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel oliveLabel = new ColorLabel(0,0,26,26);
 		oliveLabel.setColor(SVGColor.OLIVE);
@@ -309,7 +312,7 @@ public class EtyllicPaint extends Application{
 		greenButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", greenLabel.getColor()));
 		greenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(greenButton);
-		
+
 		tealButton = new Button(colorButtonsX+buttonSize*5+5, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel tealLabel = new ColorLabel(0,0,26,26);
 		tealLabel.setColor(SVGColor.TEAL);
@@ -318,7 +321,7 @@ public class EtyllicPaint extends Application{
 		tealButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", tealLabel.getColor()));
 		tealButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(tealButton);
-		
+
 		navyButton = new Button(colorButtonsX+buttonSize*6+6, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel navyLabel = new ColorLabel(0,0,26,26);
 		navyLabel.setColor(SVGColor.NAVY);
@@ -336,7 +339,7 @@ public class EtyllicPaint extends Application{
 		purpleButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", purpleLabel.getColor()));
 		purpleButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(purpleButton);
-		
+
 		mossGreenButton = new Button(colorButtonsX+buttonSize*8+8, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel mossGreenLabel = new ColorLabel(0,0,26,26);
 		mossGreenLabel.setColor(SVGColor.MOSS_GREEN);
@@ -345,7 +348,7 @@ public class EtyllicPaint extends Application{
 		mossGreenButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", mossGreenLabel.getColor()));
 		mossGreenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(mossGreenButton);
-		
+
 		richBlackButton = new Button(colorButtonsX+buttonSize*9+9, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel richBlackLabel = new ColorLabel(0,0,26,26);
 		richBlackLabel.setColor(SVGColor.RICH_BLACK);
@@ -354,7 +357,7 @@ public class EtyllicPaint extends Application{
 		richBlackButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", richBlackLabel.getColor()));
 		richBlackButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(richBlackButton);
-		
+
 		skyBlueButton = new Button(colorButtonsX+buttonSize*10+10, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel skyBlueLabel = new ColorLabel(0,0,26,26);
 		skyBlueLabel.setColor(SVGColor.SKY_BLUE);
@@ -372,7 +375,7 @@ public class EtyllicPaint extends Application{
 		savageBlueButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", savageBlueLabel.getColor()));
 		savageBlueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(savageBlueButton);
-		
+
 		lilacButton = new Button(colorButtonsX+buttonSize*12+12, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel lilacLabel = new ColorLabel(0,0,26,26);
 		lilacLabel.setColor(SVGColor.LILAC);
@@ -381,7 +384,7 @@ public class EtyllicPaint extends Application{
 		lilacButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", lilacLabel.getColor()));
 		lilacButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(lilacButton);
-		
+
 		woodBrownButton = new Button(colorButtonsX+buttonSize*13+13, colorButtonsY, buttonSize,buttonSize);
 		ColorLabel woodBrownLabel = new ColorLabel(0,0,26,26);
 		woodBrownLabel.setColor(SVGColor.WOOD_BROWN);
@@ -390,8 +393,8 @@ public class EtyllicPaint extends Application{
 		woodBrownButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", woodBrownLabel.getColor()));
 		woodBrownButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(woodBrownButton);
-		
-		
+
+
 		//Lower Line
 		whiteButton = new Button(colorButtonsX+buttonSize*0+0, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel whiteLabel = new ColorLabel(0,0,26,26);
@@ -401,7 +404,7 @@ public class EtyllicPaint extends Application{
 		whiteButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", whiteLabel.getColor()));
 		whiteButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(whiteButton);
-		
+
 		lightGrayButton = new Button(colorButtonsX+buttonSize*1+1, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel lightGrayLabel = new ColorLabel(0,0,26,26);
 		lightGrayLabel.setColor(new Color(0xC0,0xC0,0xC0));
@@ -410,7 +413,7 @@ public class EtyllicPaint extends Application{
 		lightGrayButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", lightGrayLabel.getColor()));
 		lightGrayButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(lightGrayButton);
-						
+
 		redButton = new Button(colorButtonsX+buttonSize*2+2, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel redLabel = new ColorLabel(0,0,26,26);
 		redLabel.setColor(Color.RED);
@@ -419,7 +422,7 @@ public class EtyllicPaint extends Application{
 		redButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", redLabel.getColor()));
 		redButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(redButton);
-		
+
 		yellowButton = new Button(colorButtonsX+buttonSize*3+3, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel yellowLabel = new ColorLabel(0,0,26,26);
 		yellowLabel.setColor(Color.YELLOW);
@@ -428,7 +431,7 @@ public class EtyllicPaint extends Application{
 		yellowButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", yellowLabel.getColor()));
 		yellowButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(yellowButton);
-		
+
 		limeButton = new Button(colorButtonsX+buttonSize*4+4, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel limeLabel = new ColorLabel(0,0,26,26);
 		limeLabel.setColor(SVGColor.LIME);
@@ -437,7 +440,7 @@ public class EtyllicPaint extends Application{
 		limeButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", limeLabel.getColor()));
 		limeButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(limeButton);
-		
+
 		cyanButton = new Button(colorButtonsX+buttonSize*5+5, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel cyanLabel = new ColorLabel(0,0,26,26);
 		cyanLabel.setColor(SVGColor.CYAN);
@@ -446,7 +449,7 @@ public class EtyllicPaint extends Application{
 		cyanButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", cyanLabel.getColor()));
 		cyanButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(cyanButton);
-		
+
 		blueButton = new Button(colorButtonsX+buttonSize*6+6, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel blueLabel = new ColorLabel(0,0,26,26);
 		blueLabel.setColor(Color.BLUE);
@@ -455,7 +458,7 @@ public class EtyllicPaint extends Application{
 		blueButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", blueLabel.getColor()));
 		blueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(blueButton);
-				
+
 		magentaButton = new Button(colorButtonsX+buttonSize*7+7, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel magentaLabel = new ColorLabel(0,0,26,26);
 		magentaLabel.setColor(Color.MAGENTA);
@@ -464,7 +467,7 @@ public class EtyllicPaint extends Application{
 		magentaButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", magentaLabel.getColor()));
 		magentaButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(magentaButton);
-		
+
 		eggCustardButton = new Button(colorButtonsX+buttonSize*8+8, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel eggCustardLabel = new ColorLabel(0,0,26,26);
 		eggCustardLabel.setColor(SVGColor.EGG_CUSTARD);
@@ -473,7 +476,7 @@ public class EtyllicPaint extends Application{
 		eggCustardButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", eggCustardLabel.getColor()));
 		eggCustardButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(eggCustardButton);
-		
+
 		springGreenButton = new Button(colorButtonsX+buttonSize*9+9, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel springGreenLabel = new ColorLabel(0,0,26,26);
 		springGreenLabel.setColor(SVGColor.SPRING_GREEN);
@@ -482,7 +485,7 @@ public class EtyllicPaint extends Application{
 		springGreenButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", springGreenLabel.getColor()));
 		springGreenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(springGreenButton);
-		
+
 		lightCyanButton = new Button(colorButtonsX+buttonSize*10+10, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel lightCyanLabel = new ColorLabel(0,0,26,26);
 		lightCyanLabel.setColor(SVGColor.LIGHT_CYAN);
@@ -491,7 +494,7 @@ public class EtyllicPaint extends Application{
 		lightCyanButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", lightCyanLabel.getColor()));
 		lightCyanButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(lightCyanButton);
-		
+
 		lavendarButton = new Button(colorButtonsX+buttonSize*11+11, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel lavendarLabel = new ColorLabel(0,0,26,26);
 		lavendarLabel.setColor(SVGColor.LAVENDAR);
@@ -500,7 +503,7 @@ public class EtyllicPaint extends Application{
 		lavendarButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", lavendarLabel.getColor()));
 		lavendarButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(lavendarButton);
-		
+
 		darkRoseButton = new Button(colorButtonsX+buttonSize*12+12, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel darkRoseLabel = new ColorLabel(0,0,26,26);
 		darkRoseLabel.setColor(SVGColor.DARK_ROSE);
@@ -509,7 +512,7 @@ public class EtyllicPaint extends Application{
 		darkRoseButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", darkRoseLabel.getColor()));
 		darkRoseButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(darkRoseButton);
-		
+
 		coralButton = new Button(colorButtonsX+buttonSize*13+13, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
 		ColorLabel coralLabel = new ColorLabel(0,0,26,26);
 		coralLabel.setColor(SVGColor.CORAL);
@@ -518,15 +521,15 @@ public class EtyllicPaint extends Application{
 		coralButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", coralLabel.getColor()));
 		coralButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(coralButton);
-		
-		
+
+
 	}
-	
+
 	private void createScreen(){
-		
+
 		screenW = w-startScreenX;
 		screenH = h-startScreenY-colorToolBarH;
-		
+
 		screen = new BufferedImage(screenW, screenH, BufferedImage.TYPE_INT_ARGB);
 		screenGraphics = screen.createGraphics();
 		screenGraphics.setColor(Color.WHITE);
@@ -537,15 +540,15 @@ public class EtyllicPaint extends Application{
 	public void setMode(PaintMode mode) {
 		this.mode = mode;
 	}
-	
+
 	public void setPrimaryColor(Color color) {
 		this.primaryColor = color;
 	}
-	
+
 	public void setSecundaryColor(Color color) {
 		this.secundaryColor = color;
 	}
-	
+
 	public void openColorPickerWindow() {
 		System.out.println("openColorPickerWindow");
 	}
@@ -568,18 +571,16 @@ public class EtyllicPaint extends Application{
 
 		if(mode==PaintMode.DRAW_LINE){
 
-			if(startPointX!=UNDEFINED&&startPointY!=UNDEFINED){
-
+			if(undefined){
 				g.setColor(undefinedColor);
 				g.drawLine(startPointX, startPointY, mx, my);
-
 			}
 
 		}
 
 		if(mode==PaintMode.DRAW_RECT){
 
-			if(startPointX!=UNDEFINED&&startPointY!=UNDEFINED){
+			if(undefined){
 
 				drawUndefinedRect(g);
 
@@ -589,7 +590,7 @@ public class EtyllicPaint extends Application{
 
 		if(mode==PaintMode.DRAW_OVAL){
 
-			if(startPointX!=UNDEFINED&&startPointY!=UNDEFINED){
+			if(undefined){
 				drawUndefinedOval(g);
 			}
 
@@ -605,7 +606,7 @@ public class EtyllicPaint extends Application{
 
 	@Override
 	public GUIEvent updateMouse(PointerEvent event) {
-				
+
 		mx = event.getX();
 		my = event.getY();
 
@@ -621,7 +622,7 @@ public class EtyllicPaint extends Application{
 			case PENCIL:
 				pencilModeEvent(event);
 				break;
-				
+
 			case DRAW_LINE:
 				lineModeEvent(event);
 				break;
@@ -638,7 +639,7 @@ public class EtyllicPaint extends Application{
 			}
 
 		}
-		
+
 		if(event.getPressed(MouseButton.MOUSE_WHEEL_UP)||event.getPressed(MouseButton.MOUSE_WHEEL_DOWN)){
 			zoom-=event.getAmount();
 		}
@@ -653,7 +654,7 @@ public class EtyllicPaint extends Application{
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
 
 			//TODO Floodfill with primary color
-			
+
 			screenGraphics.setColor(primaryColor);
 			screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
 
@@ -662,144 +663,118 @@ public class EtyllicPaint extends Application{
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 
 			//TODO Floodfill with secundary color
-			
+
 			screenGraphics.setColor(secundaryColor);
 			screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
 		}
 
 	}
 
-	private int startPointX = UNDEFINED;
-	private int startPointY = UNDEFINED;
-	
+	private int startPointX = 0;
+	private int startPointY = 0;
+
 	private boolean pencilLeftPressed = false;
 	private boolean pencilRightPressed = false;
 
 	private void pencilModeEvent(PointerEvent event){
-				
+
 		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
 			pencilLeftPressed = true;
 		}
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
 			pencilLeftPressed = false;
 		}
-		
+
 		if(event.getPressed(MouseButton.MOUSE_BUTTON_RIGHT)){
 			pencilRightPressed = true;
 		}
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 			pencilRightPressed = false;
 		}
-		
+
 		if(pencilLeftPressed){
-			
+
 			drawPixel(primaryColor);
-			
+
 		}else if(pencilRightPressed){
-			
+
 			drawPixel(secundaryColor);
-			
+
 		}
-				
+
 	}
-	
+
 	private void lineModeEvent(PointerEvent event){
 
-		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
 
-			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
-
-				setStartPoint();
-				undefinedColor = primaryColor;
-
-			}else{
-
-				drawLine();
-
-			}
+			setStartPoint();
+			undefinedColor = primaryColor;
+			undefined = true;
 
 		}
 		
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 
-			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
-
-				setStartPoint();
-				undefinedColor = secundaryColor;
-
-			}else{
-
-				drawLine();
-
-			}
+			setStartPoint();
+			undefinedColor = secundaryColor;
+			undefined = true;
 
 		}
+
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)||event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+			drawLine();
+			undefined = false;
+		}
+
 	}
-	
+
 	private void rectModeEvent(PointerEvent event){
 
-		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
 
-			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
-
-				setStartPoint();
-				undefinedColor = primaryColor;						
-
-			}else{
-
-				drawRect();
-
-			}
-
+			setStartPoint();
+			undefinedColor = primaryColor;
+			undefined = true;
+			
 		}
 		
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
-
-			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
-
-				setStartPoint();
-				undefinedColor = secundaryColor;
-				
-
-			}else{
-
-				drawRect();
-
-			}
-
+			setStartPoint();
+			undefinedColor = secundaryColor;
+			undefined = true;
 		}
+		
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)||event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+
+			drawRect();
+			undefined = false;
+			
+		}
+		
 	}
-	
+
 	private void ovalModeEvent(PointerEvent event){
 
-		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
 
-			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
-
-				setStartPoint();
-				undefinedColor = primaryColor;
-
-			}else{
-
-				drawOval();
-
-			}
-
+			setStartPoint();
+			undefinedColor = primaryColor;
+			undefined = true;
+			
 		}
 		
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+			setStartPoint();
+			undefinedColor = secundaryColor;
+			undefined = true;
+		}
+		
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)||event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 
-			if(startPointX==UNDEFINED||startPointY==UNDEFINED){
-
-				setStartPoint();
-				undefinedColor = secundaryColor;
-
-			}else{
-
-				drawOval();
-
-			}
-
+			drawOval();
+			undefined = false;
+			
 		}
 	}
 
@@ -807,7 +782,7 @@ public class EtyllicPaint extends Application{
 
 		startPointX = mx;
 		startPointY = my;
-		
+
 	}
 
 	private void drawPixel(Color color){
@@ -815,16 +790,16 @@ public class EtyllicPaint extends Application{
 		screen.setRGB(mx-startScreenX, my-startScreenY, color.getRGB());
 		//screenGraphics.drawRect(mx-startScreenX, my-startScreenY, 1, 1);
 	}
-	
+
 	private void drawLine(){
+		
 		screenGraphics.setColor(undefinedColor);
 		screenGraphics.drawLine(startPointX-startScreenX, startPointY-startScreenY, mx-startScreenX, my-startScreenY);
-
-		startPointX = UNDEFINED;
-		startPointY = UNDEFINED;
+		
 	}
-	
+
 	private void drawRect(){
+		
 		screenGraphics.setColor(undefinedColor);
 
 		int ix = startPointX;
@@ -843,10 +818,8 @@ public class EtyllicPaint extends Application{
 
 		screenGraphics.drawRect(ix-startScreenX, iy-startScreenY, difx, dify);
 
-		startPointX = UNDEFINED;
-		startPointY = UNDEFINED;
 	}
-	
+
 	private void drawOval(){
 		screenGraphics.setColor(undefinedColor);
 
@@ -866,13 +839,11 @@ public class EtyllicPaint extends Application{
 
 		screenGraphics.drawOval(ix-startScreenX, iy-startScreenY, difx, dify);
 
-		startPointX = UNDEFINED;
-		startPointY = UNDEFINED;
 	}
-	
+
 
 	private void drawUndefinedRect(Grafico g){
-		
+
 		g.setColor(undefinedColor);
 
 		int ix = startPointX;
