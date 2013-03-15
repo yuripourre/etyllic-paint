@@ -12,6 +12,7 @@ import br.com.etyllica.core.event.GUIEvent;
 import br.com.etyllica.core.event.KeyState;
 import br.com.etyllica.core.event.KeyboardEvent;
 import br.com.etyllica.core.event.PointerEvent;
+import br.com.etyllica.core.event.Tecla;
 import br.com.etyllica.core.video.Grafico;
 import br.com.etyllica.gui.Button;
 import br.com.etyllica.gui.Panel;
@@ -64,7 +65,7 @@ public class EtyllicPaint extends Application{
 	private CheckButtonRadio pencil;
 	private CheckButtonRadio brush;
 
-	private CheckButtonRadio sprayCan;
+	private CheckButtonRadio airBrush;
 	private CheckButtonRadio text;
 
 	private CheckButtonRadio line;
@@ -139,6 +140,7 @@ public class EtyllicPaint extends Application{
 
 		freeMark = new CheckButtonRadio(toolBarX,toolBarY,buttonSize,buttonSize);
 		freeMark.setLabel(new ImageIcon(8, 8, "freemark.png"));
+		freeMark.setAlt("Free Form Select");
 		toolbarGroup.add(freeMark);
 		freeMark.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.FREE_MARK));
 		add(freeMark);
@@ -152,6 +154,7 @@ public class EtyllicPaint extends Application{
 		eraser = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*1+1,buttonSize,buttonSize);
 		//From http://findicons.com/icon/441226/eraser?id=449660
 		eraser.setLabel(new ImageIcon(8, 8, "eraser.png"));
+		eraser.setAlt("Eraser/Color Eraser");
 		eraser.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.ERASER));
 		toolbarGroup.add(eraser);
 		add(eraser);
@@ -168,6 +171,7 @@ public class EtyllicPaint extends Application{
 		dropper = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*2+2,buttonSize,buttonSize);
 		//http://findicons.com/icon/238374/color_picker?id=238374
 		dropper.setLabel(new ImageIcon(8, 8, "dropper.png"));
+		dropper.setAlt("Pick Color");
 		dropper.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DROPPER));
 		toolbarGroup.add(dropper);
 		add(dropper);
@@ -183,6 +187,7 @@ public class EtyllicPaint extends Application{
 		pencil = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*3+3,buttonSize,buttonSize);
 		//http://findicons.com/icon/226814/pencil?width=32
 		pencil.setLabel(new ImageIcon(8, 8, "pencil.png"));
+		pencil.setAlt("Pencil");
 		pencil.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.PENCIL));
 		toolbarGroup.add(pencil);
 		add(pencil);
@@ -194,12 +199,12 @@ public class EtyllicPaint extends Application{
 		toolbarGroup.add(brush);
 		add(brush);
 
-		sprayCan = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
+		airBrush = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
 		//http://www.keywordpictures.com/abuse/spray%20can%20icon///
-		sprayCan.setLabel(new ImageIcon(8, 8, "spray_can.png"));
-		sprayCan.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.SPRAY));
-		toolbarGroup.add(sprayCan);
-		add(sprayCan);
+		airBrush.setLabel(new ImageIcon(8, 8, "spray_can.png"));
+		airBrush.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.SPRAY));
+		toolbarGroup.add(airBrush);
+		add(airBrush);
 
 		text = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
 		text.setLabel(new ImageIcon(8, 8, "text.png"));
@@ -209,6 +214,7 @@ public class EtyllicPaint extends Application{
 
 		line = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*5+5,buttonSize,buttonSize);
 		line.setLabel(new ImageIcon(8, 8, "line.png"));
+		line.setAlt("Line");
 		line.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_LINE));
 		toolbarGroup.add(line);
 		add(line);
@@ -221,6 +227,7 @@ public class EtyllicPaint extends Application{
 
 		rect = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
 		rect.setLabel(new ImageIcon(8, 8, "rect.png"));
+		rect.setAlt("Rectangle");
 		rect.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_RECT));
 		toolbarGroup.add(rect);
 		add(rect);
@@ -572,8 +579,7 @@ public class EtyllicPaint extends Application{
 		if(mode==PaintMode.DRAW_LINE){
 
 			if(undefined){
-				g.setColor(undefinedColor);
-				g.drawLine(startPointX, startPointY, mx, my);
+				drawUndefinedLine(g);
 			}
 
 		}
@@ -596,10 +602,35 @@ public class EtyllicPaint extends Application{
 
 		}
 
+		drawCoordinates(g);
+
+
 	}
+
+	private void drawCoordinates(Grafico g){
+
+		g.setColor(Color.WHITE);
+
+		if((mx>startScreenX)&&(my>startScreenY)){
+			g.escreveSombra(875, 530, Integer.toString(mx-startScreenX)+","+Integer.toString(my-startScreenY));
+		}
+
+	}
+
+	private boolean shift = false;
 
 	@Override
 	public GUIEvent updateKeyboard(KeyboardEvent event) {
+
+		if(event.getPressed(Tecla.TSK_SHIFT_DIREITA)||event.getPressed(Tecla.TSK_SHIFT_ESQUERDA)){
+			shift = true;
+			System.out.println("Shift true");
+		}
+
+		if(event.getReleased(Tecla.TSK_SHIFT_DIREITA)||event.getReleased(Tecla.TSK_SHIFT_ESQUERDA)){
+			shift = false;
+			System.out.println("Shift false");
+		}
 
 		return GUIEvent.NONE;
 	}
@@ -607,8 +638,10 @@ public class EtyllicPaint extends Application{
 	@Override
 	public GUIEvent updateMouse(PointerEvent event) {
 
-		mx = event.getX();
-		my = event.getY();
+		if(event.getState()!=KeyState.RELEASED){
+			mx = event.getX();
+			my = event.getY();
+		}
 
 		//TODO Change to colision
 		if((mx>startScreenX)&&(my>startScreenY&&(my<colorToolBarY))){
@@ -713,7 +746,7 @@ public class EtyllicPaint extends Application{
 			undefined = true;
 
 		}
-		
+
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 
 			setStartPoint();
@@ -736,22 +769,22 @@ public class EtyllicPaint extends Application{
 			setStartPoint();
 			undefinedColor = primaryColor;
 			undefined = true;
-			
+
 		}
-		
+
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 			setStartPoint();
 			undefinedColor = secundaryColor;
 			undefined = true;
 		}
-		
+
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)||event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 
 			drawRect();
 			undefined = false;
-			
+
 		}
-		
+
 	}
 
 	private void ovalModeEvent(PointerEvent event){
@@ -761,20 +794,20 @@ public class EtyllicPaint extends Application{
 			setStartPoint();
 			undefinedColor = primaryColor;
 			undefined = true;
-			
+
 		}
-		
+
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 			setStartPoint();
 			undefinedColor = secundaryColor;
 			undefined = true;
 		}
-		
+
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)||event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 
 			drawOval();
 			undefined = false;
-			
+
 		}
 	}
 
@@ -792,14 +825,14 @@ public class EtyllicPaint extends Application{
 	}
 
 	private void drawLine(){
-		
+
 		screenGraphics.setColor(undefinedColor);
 		screenGraphics.drawLine(startPointX-startScreenX, startPointY-startScreenY, mx-startScreenX, my-startScreenY);
-		
+
 	}
 
 	private void drawRect(){
-		
+
 		screenGraphics.setColor(undefinedColor);
 
 		int ix = startPointX;
@@ -841,6 +874,34 @@ public class EtyllicPaint extends Application{
 
 	}
 
+	private void drawUndefinedLine(Grafico g){
+
+		g.setColor(undefinedColor);
+
+		if(shift){
+
+			int mydif = my-startPointY;
+			int mxdif = mx-startPointX;
+
+			if(my<startPointY){
+				mydif = startPointY-my;
+			}
+
+			if(mx<startPointX){
+				mxdif = startPointX-mx;	
+			}
+
+			if(mxdif>mydif){
+				my = startPointY;
+			}else if(mydif>mxdif){
+				mx = startPointX;
+			}
+
+		}
+
+		g.drawLine(startPointX, startPointY, mx, my);
+
+	}	
 
 	private void drawUndefinedRect(Grafico g){
 
