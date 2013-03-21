@@ -76,8 +76,6 @@ public class EtyllicPaint extends PaintInterface{
 	private CheckButtonRadio oval;
 	private CheckButtonRadio round;
 
-	private Color primaryColor = Color.BLACK;
-	private Color secundaryColor = Color.WHITE;
 	private Color undefinedColor = primaryColor;
 	private Color anotherColor = secundaryColor;
 
@@ -267,7 +265,7 @@ public class EtyllicPaint extends PaintInterface{
 	public void setRectMode() {
 		setMode(PaintMode.DRAW_RECT);
 		
-		showRectCheckButtons();		
+		showRectCheckButtons();
 	}
 	
 	private void showRectCheckButtons(){
@@ -285,14 +283,13 @@ public class EtyllicPaint extends PaintInterface{
 	
 	public void setMode(PaintMode mode) {
 		this.mode = mode;
+		resetMode();
 	}
-
-	public void setPrimaryColor(Color color) {
-		this.primaryColor = color;
-	}
-
-	public void setSecundaryColor(Color color) {
-		this.secundaryColor = color;
+	
+	private void resetMode(){
+		//Reset Rect
+		drawRectButton.setVisible(false);
+		fillRectButton.setVisible(false);
 	}
 
 	public void openColorPickerWindow() {
@@ -389,6 +386,8 @@ public class EtyllicPaint extends PaintInterface{
 				paintCanModeEvent(event);
 				break;
 
+			//TODO Just for now
+			case PAINT_BRUSH:
 			case PENCIL:
 				pencilModeEvent(event);
 				break;

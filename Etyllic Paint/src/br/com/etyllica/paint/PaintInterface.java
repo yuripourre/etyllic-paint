@@ -47,6 +47,13 @@ public abstract class PaintInterface extends Application{
 	private Button lavendarButton;
 	private Button darkRoseButton;
 	private Button coralButton;
+	
+	protected Color primaryColor = Color.BLACK;
+	protected Color secundaryColor = Color.WHITE;
+	private Button primaryColorButton;
+	ColorLabel primaryColorLabel;
+	private Button secundaryColorButton;
+	ColorLabel secundaryColorLabel;
 
 	protected int colorToolBarH = 0;
 	protected int colorToolBarY = 0;
@@ -55,7 +62,7 @@ public abstract class PaintInterface extends Application{
 		colorToolBarH = buttonSize*2-1;
 		colorToolBarY = h-colorToolBarH;
 		
-		int colorButtonsX = 180;
+		int colorButtonsX = 182;
 		int colorButtonsY = h-colorToolBarH;
 
 		blackButton = new Button(colorButtonsX+buttonSize*0+0, colorButtonsY, buttonSize,buttonSize);
@@ -311,6 +318,28 @@ public abstract class PaintInterface extends Application{
 		coralButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", coralLabel.getColor()));
 		coralButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
 		add(coralButton);
+		
+		secundaryColorButton = new Button(colorButtonsX+2-buttonSize-buttonSize/4, colorButtonsY+buttonSize/2+14, buttonSize+buttonSize/6,buttonSize-buttonSize/6);
+		secundaryColorLabel = new ColorLabel(0,0,secundaryColorButton.getW()-2,secundaryColorButton.getH()-2);
+		secundaryColorLabel.setColor(secundaryColor);
+		secundaryColorButton.setCenterLabel(secundaryColorLabel);
+		add(secundaryColorButton);
+		
+		primaryColorButton = new Button(secundaryColorButton.getX()-buttonSize/2, secundaryColorButton.getY()-buttonSize/2, secundaryColorButton.getW(),secundaryColorButton.getH());
+		primaryColorLabel = new ColorLabel(0,0,primaryColorButton.getW()-2,primaryColorButton.getH()-2);
+		primaryColorLabel.setColor(primaryColor);
+		primaryColorButton.setCenterLabel(primaryColorLabel);
+		add(primaryColorButton);
+	}
+	
+	public void setPrimaryColor(Color color) {
+		this.primaryColor = color;
+		primaryColorLabel.setColor(color);
+	}
+
+	public void setSecundaryColor(Color color) {
+		this.secundaryColor = color;
+		secundaryColorLabel.setColor(color);
 	}
 	
 }
