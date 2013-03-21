@@ -5,7 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-import br.com.etyllica.core.application.Application;
 import br.com.etyllica.core.control.mouse.MouseButton;
 import br.com.etyllica.core.event.GUIAction;
 import br.com.etyllica.core.event.GUIEvent;
@@ -14,21 +13,17 @@ import br.com.etyllica.core.event.KeyboardEvent;
 import br.com.etyllica.core.event.PointerEvent;
 import br.com.etyllica.core.event.Tecla;
 import br.com.etyllica.core.video.Grafico;
-import br.com.etyllica.gui.Button;
 import br.com.etyllica.gui.Panel;
 import br.com.etyllica.gui.RadioGroup;
 import br.com.etyllica.gui.icon.ImageIcon;
-import br.com.etyllica.gui.label.ColorLabel;
 import br.com.etyllica.gui.radio.CheckButtonRadio;
-import br.com.etyllica.util.SVGColor;
 
-public class EtyllicPaint extends Application{
+public class EtyllicPaint extends PaintInterface{
 
 	public EtyllicPaint(int w, int h) {
 		super(w, h);
 	}
 
-	//private final int UNDEFINED = -1;
 	private boolean undefined = false;
 
 	private BufferedImage screen;
@@ -72,6 +67,10 @@ public class EtyllicPaint extends Application{
 	private CheckButtonRadio curve;
 
 	private CheckButtonRadio rect;
+	private CheckButtonRadio drawRectButton;
+	private CheckButtonRadio fillRectButton;
+	private boolean rectDraw = true;
+	
 	private CheckButtonRadio poly;
 
 	private CheckButtonRadio oval;
@@ -79,46 +78,12 @@ public class EtyllicPaint extends Application{
 
 	private Color primaryColor = Color.BLACK;
 	private Color secundaryColor = Color.WHITE;
-	private Color undefinedColor = Color.BLACK;
-
-	//Color Buttons
-	//UpperLine
-	private Button blackButton;
-	private Button grayButton;
-	private Button maroonButton;
-	private Button oliveButton;
-	private Button greenButton;
-	private Button tealButton;
-	private Button navyButton;
-	private Button purpleButton;
-	private Button mossGreenButton;
-	private Button richBlackButton;
-	private Button skyBlueButton;
-	private Button savageBlueButton;
-	private Button lilacButton;
-	private Button woodBrownButton;
-
-	//Lower Line
-	private Button whiteButton;
-	private Button lightGrayButton;
-	private Button redButton;
-	private Button yellowButton;
-	private Button limeButton;
-	private Button cyanButton;
-	private Button blueButton;
-	private Button magentaButton;
-	private Button eggCustardButton;
-	private Button springGreenButton;
-	private Button lightCyanButton;
-	private Button lavendarButton;
-	private Button darkRoseButton;
-	private Button coralButton;
-
-
-	private int colorToolBarH = 0;
-	private int colorToolBarY = 0;
+	private Color undefinedColor = primaryColor;
+	private Color anotherColor = secundaryColor;
 
 	private int zoom = 0;
+
+	private boolean shift = false;
 
 	@Override
 	public void load() {
@@ -127,9 +92,7 @@ public class EtyllicPaint extends Application{
 		int toolBarY = 0;
 		int toolBarColumns = 2;
 		int buttonSize = 48;
-		colorToolBarH = buttonSize*2-1;
-		colorToolBarY = h-colorToolBarH;
-
+		
 		loadingPhrase = "Loading Panel...";
 		panel = new Panel(toolBarX,toolBarY,startScreenX,h);
 		add(panel);
@@ -228,9 +191,28 @@ public class EtyllicPaint extends Application{
 		rect = new CheckButtonRadio(toolBarX,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
 		rect.setLabel(new ImageIcon(8, 8, "rect.png"));
 		rect.setAlt("Rectangle");
-		rect.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_RECT));
+		rect.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRectMode"));
 		toolbarGroup.add(rect);
 		add(rect);
+		
+		//TODO Rect Options
+		RadioGroup rectGroup = new RadioGroup();
+		
+		drawRectButton = new CheckButtonRadio(toolBarX, 400, buttonSize*2, buttonSize);
+		drawRectButton.setCenterLabel(new ImageIcon("rect.png"));
+		drawRectButton.setAlt("Draw Rectangle");
+		drawRectButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRectModeDraw"));
+		rectGroup.add(drawRectButton);
+		drawRectButton.setVisible(false);
+		add(drawRectButton);
+		
+		fillRectButton = new CheckButtonRadio(toolBarX, 400+buttonSize+2, buttonSize*2, buttonSize);
+		fillRectButton.setCenterLabel(new ImageIcon("rectfilled.png"));
+		fillRectButton.setAlt("Fill Rectangle");
+		fillRectButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRectModeFill"));
+		rectGroup.add(fillRectButton);
+		fillRectButton.setVisible(false);
+		add(fillRectButton);
 
 		poly = new CheckButtonRadio(toolBarX+buttonSize+1,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
 		poly.setLabel(new ImageIcon(8, 8, "poly.png"));
@@ -254,7 +236,7 @@ public class EtyllicPaint extends Application{
 
 		loadingPhrase = "Loading Colors...";
 
-		createButtons(buttonSize);
+		loadInterface(buttonSize);		
 
 		loading = 90;
 
@@ -270,268 +252,6 @@ public class EtyllicPaint extends Application{
 
 	}
 
-	private void createButtons(int buttonSize){
-
-		int colorButtonsX = 180;
-		int colorButtonsY = h-colorToolBarH;
-
-		blackButton = new Button(colorButtonsX+buttonSize*0+0, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel blackLabel = new ColorLabel(0,0,26,26);
-		blackLabel.setColor(Color.BLACK);
-		blackButton.setCenterLabel(blackLabel);
-		blackButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", blackLabel.getColor()));
-		blackButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", blackLabel.getColor()));
-		blackButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(blackButton);
-
-		grayButton = new Button(colorButtonsX+buttonSize*1+1, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel grayLabel = new ColorLabel(0,0,26,26);
-		grayLabel.setColor(SVGColor.GRAY);
-		grayButton.setCenterLabel(grayLabel);
-		grayButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", grayLabel.getColor()));
-		grayButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", grayLabel.getColor()));
-		grayButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(grayButton);
-
-		maroonButton = new Button(colorButtonsX+buttonSize*2+2, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel maroonLabel = new ColorLabel(0,0,26,26);
-		maroonLabel.setColor(SVGColor.MAROON);
-		maroonButton.setCenterLabel(maroonLabel);
-		maroonButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", maroonLabel.getColor()));
-		maroonButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", maroonLabel.getColor()));
-		maroonButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(maroonButton);
-
-		oliveButton = new Button(colorButtonsX+buttonSize*3+3, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel oliveLabel = new ColorLabel(0,0,26,26);
-		oliveLabel.setColor(SVGColor.OLIVE);
-		oliveButton.setCenterLabel(oliveLabel);
-		oliveButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", oliveLabel.getColor()));
-		oliveButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", oliveLabel.getColor()));
-		oliveButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(oliveButton);
-
-		greenButton = new Button(colorButtonsX+buttonSize*4+4, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel greenLabel = new ColorLabel(0,0,26,26);
-		greenLabel.setColor(SVGColor.GREEN);
-		greenButton.setCenterLabel(greenLabel);
-		greenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", greenLabel.getColor()));
-		greenButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", greenLabel.getColor()));
-		greenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(greenButton);
-
-		tealButton = new Button(colorButtonsX+buttonSize*5+5, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel tealLabel = new ColorLabel(0,0,26,26);
-		tealLabel.setColor(SVGColor.TEAL);
-		tealButton.setCenterLabel(tealLabel);
-		tealButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", tealLabel.getColor()));
-		tealButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", tealLabel.getColor()));
-		tealButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(tealButton);
-
-		navyButton = new Button(colorButtonsX+buttonSize*6+6, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel navyLabel = new ColorLabel(0,0,26,26);
-		navyLabel.setColor(SVGColor.NAVY);
-		navyButton.setCenterLabel(navyLabel);
-		navyButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", navyLabel.getColor()));
-		navyButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", navyLabel.getColor()));
-		navyButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(navyButton);
-
-		purpleButton = new Button(colorButtonsX+buttonSize*7+7, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel purpleLabel = new ColorLabel(0,0,26,26);
-		purpleLabel.setColor(SVGColor.PURPLE);
-		purpleButton.setCenterLabel(purpleLabel);
-		purpleButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", purpleLabel.getColor()));
-		purpleButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", purpleLabel.getColor()));
-		purpleButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(purpleButton);
-
-		mossGreenButton = new Button(colorButtonsX+buttonSize*8+8, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel mossGreenLabel = new ColorLabel(0,0,26,26);
-		mossGreenLabel.setColor(SVGColor.MOSS_GREEN);
-		mossGreenButton.setCenterLabel(mossGreenLabel);
-		mossGreenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", mossGreenLabel.getColor()));
-		mossGreenButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", mossGreenLabel.getColor()));
-		mossGreenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(mossGreenButton);
-
-		richBlackButton = new Button(colorButtonsX+buttonSize*9+9, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel richBlackLabel = new ColorLabel(0,0,26,26);
-		richBlackLabel.setColor(SVGColor.RICH_BLACK);
-		richBlackButton.setCenterLabel(richBlackLabel);
-		richBlackButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", richBlackLabel.getColor()));
-		richBlackButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", richBlackLabel.getColor()));
-		richBlackButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(richBlackButton);
-
-		skyBlueButton = new Button(colorButtonsX+buttonSize*10+10, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel skyBlueLabel = new ColorLabel(0,0,26,26);
-		skyBlueLabel.setColor(SVGColor.SKY_BLUE);
-		skyBlueButton.setCenterLabel(skyBlueLabel);
-		skyBlueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", skyBlueLabel.getColor()));
-		skyBlueButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", skyBlueLabel.getColor()));
-		skyBlueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(skyBlueButton);
-
-		savageBlueButton = new Button(colorButtonsX+buttonSize*11+11, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel savageBlueLabel = new ColorLabel(0,0,26,26);
-		savageBlueLabel.setColor(SVGColor.SAVAGE_BLUE);
-		savageBlueButton.setCenterLabel(savageBlueLabel);
-		savageBlueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", savageBlueLabel.getColor()));
-		savageBlueButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", savageBlueLabel.getColor()));
-		savageBlueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(savageBlueButton);
-
-		lilacButton = new Button(colorButtonsX+buttonSize*12+12, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel lilacLabel = new ColorLabel(0,0,26,26);
-		lilacLabel.setColor(SVGColor.LILAC);
-		lilacButton.setCenterLabel(lilacLabel);
-		lilacButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", lilacLabel.getColor()));
-		lilacButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", lilacLabel.getColor()));
-		lilacButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(lilacButton);
-
-		woodBrownButton = new Button(colorButtonsX+buttonSize*13+13, colorButtonsY, buttonSize,buttonSize);
-		ColorLabel woodBrownLabel = new ColorLabel(0,0,26,26);
-		woodBrownLabel.setColor(SVGColor.WOOD_BROWN);
-		woodBrownButton.setCenterLabel(woodBrownLabel);
-		woodBrownButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", woodBrownLabel.getColor()));
-		woodBrownButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", woodBrownLabel.getColor()));
-		woodBrownButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(woodBrownButton);
-
-
-		//Lower Line
-		whiteButton = new Button(colorButtonsX+buttonSize*0+0, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel whiteLabel = new ColorLabel(0,0,26,26);
-		whiteLabel.setColor(Color.WHITE);
-		whiteButton.setCenterLabel(whiteLabel);
-		whiteButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", whiteLabel.getColor()));
-		whiteButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", whiteLabel.getColor()));
-		whiteButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(whiteButton);
-
-		lightGrayButton = new Button(colorButtonsX+buttonSize*1+1, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel lightGrayLabel = new ColorLabel(0,0,26,26);
-		lightGrayLabel.setColor(new Color(0xC0,0xC0,0xC0));
-		lightGrayButton.setCenterLabel(lightGrayLabel);
-		lightGrayButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", lightGrayLabel.getColor()));
-		lightGrayButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", lightGrayLabel.getColor()));
-		lightGrayButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(lightGrayButton);
-
-		redButton = new Button(colorButtonsX+buttonSize*2+2, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel redLabel = new ColorLabel(0,0,26,26);
-		redLabel.setColor(Color.RED);
-		redButton.setCenterLabel(redLabel);
-		redButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", redLabel.getColor()));
-		redButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", redLabel.getColor()));
-		redButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(redButton);
-
-		yellowButton = new Button(colorButtonsX+buttonSize*3+3, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel yellowLabel = new ColorLabel(0,0,26,26);
-		yellowLabel.setColor(Color.YELLOW);
-		yellowButton.setCenterLabel(yellowLabel);
-		yellowButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", yellowLabel.getColor()));
-		yellowButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", yellowLabel.getColor()));
-		yellowButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(yellowButton);
-
-		limeButton = new Button(colorButtonsX+buttonSize*4+4, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel limeLabel = new ColorLabel(0,0,26,26);
-		limeLabel.setColor(SVGColor.LIME);
-		limeButton.setCenterLabel(limeLabel);
-		limeButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", limeLabel.getColor()));
-		limeButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", limeLabel.getColor()));
-		limeButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(limeButton);
-
-		cyanButton = new Button(colorButtonsX+buttonSize*5+5, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel cyanLabel = new ColorLabel(0,0,26,26);
-		cyanLabel.setColor(SVGColor.CYAN);
-		cyanButton.setCenterLabel(cyanLabel);
-		cyanButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", cyanLabel.getColor()));
-		cyanButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", cyanLabel.getColor()));
-		cyanButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(cyanButton);
-
-		blueButton = new Button(colorButtonsX+buttonSize*6+6, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel blueLabel = new ColorLabel(0,0,26,26);
-		blueLabel.setColor(Color.BLUE);
-		blueButton.setCenterLabel(blueLabel);
-		blueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", blueLabel.getColor()));
-		blueButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", blueLabel.getColor()));
-		blueButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(blueButton);
-
-		magentaButton = new Button(colorButtonsX+buttonSize*7+7, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel magentaLabel = new ColorLabel(0,0,26,26);
-		magentaLabel.setColor(Color.MAGENTA);
-		magentaButton.setCenterLabel(magentaLabel);
-		magentaButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", magentaLabel.getColor()));
-		magentaButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", magentaLabel.getColor()));
-		magentaButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(magentaButton);
-
-		eggCustardButton = new Button(colorButtonsX+buttonSize*8+8, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel eggCustardLabel = new ColorLabel(0,0,26,26);
-		eggCustardLabel.setColor(SVGColor.EGG_CUSTARD);
-		eggCustardButton.setCenterLabel(eggCustardLabel);
-		eggCustardButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", eggCustardLabel.getColor()));
-		eggCustardButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", eggCustardLabel.getColor()));
-		eggCustardButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(eggCustardButton);
-
-		springGreenButton = new Button(colorButtonsX+buttonSize*9+9, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel springGreenLabel = new ColorLabel(0,0,26,26);
-		springGreenLabel.setColor(SVGColor.SPRING_GREEN);
-		springGreenButton.setCenterLabel(springGreenLabel);
-		springGreenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", springGreenLabel.getColor()));
-		springGreenButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", springGreenLabel.getColor()));
-		springGreenButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(springGreenButton);
-
-		lightCyanButton = new Button(colorButtonsX+buttonSize*10+10, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel lightCyanLabel = new ColorLabel(0,0,26,26);
-		lightCyanLabel.setColor(SVGColor.LIGHT_CYAN);
-		lightCyanButton.setCenterLabel(lightCyanLabel);
-		lightCyanButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", lightCyanLabel.getColor()));
-		lightCyanButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", lightCyanLabel.getColor()));
-		lightCyanButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(lightCyanButton);
-
-		lavendarButton = new Button(colorButtonsX+buttonSize*11+11, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel lavendarLabel = new ColorLabel(0,0,26,26);
-		lavendarLabel.setColor(SVGColor.LAVENDAR);
-		lavendarButton.setCenterLabel(lavendarLabel);
-		lavendarButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", lavendarLabel.getColor()));
-		lavendarButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", lavendarLabel.getColor()));
-		lavendarButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(lavendarButton);
-
-		darkRoseButton = new Button(colorButtonsX+buttonSize*12+12, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel darkRoseLabel = new ColorLabel(0,0,26,26);
-		darkRoseLabel.setColor(SVGColor.DARK_ROSE);
-		darkRoseButton.setCenterLabel(darkRoseLabel);
-		darkRoseButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", darkRoseLabel.getColor()));
-		darkRoseButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", darkRoseLabel.getColor()));
-		darkRoseButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(darkRoseButton);
-
-		coralButton = new Button(colorButtonsX+buttonSize*13+13, colorButtonsY+buttonSize+1, buttonSize,buttonSize);
-		ColorLabel coralLabel = new ColorLabel(0,0,26,26);
-		coralLabel.setColor(SVGColor.CORAL);
-		coralButton.setCenterLabel(coralLabel);
-		coralButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setPrimaryColor", coralLabel.getColor()));
-		coralButton.addAction(GUIEvent.MOUSE_RIGHT_BUTTON_UP, new GUIAction(this, "setSecundaryColor", coralLabel.getColor()));
-		coralButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_DOUBLE_CLICK, new GUIAction(this, "openColorPickerWindow"));
-		add(coralButton);
-
-
-	}
-
 	private void createScreen(){
 
 		screenW = w-startScreenX;
@@ -544,6 +264,25 @@ public class EtyllicPaint extends Application{
 
 	}
 
+	public void setRectMode() {
+		setMode(PaintMode.DRAW_RECT);
+		
+		showRectCheckButtons();		
+	}
+	
+	private void showRectCheckButtons(){
+		drawRectButton.setVisible(true);
+		fillRectButton.setVisible(true);
+	}
+		
+	public void setRectModeDraw(){
+		rectDraw = true;
+	}
+	
+	public void setRectModeFill(){
+		rectDraw = false;
+	}
+	
 	public void setMode(PaintMode mode) {
 		this.mode = mode;
 	}
@@ -616,8 +355,6 @@ public class EtyllicPaint extends Application{
 		}
 
 	}
-
-	private boolean shift = false;
 
 	@Override
 	public GUIEvent updateKeyboard(KeyboardEvent event) {
@@ -743,14 +480,16 @@ public class EtyllicPaint extends Application{
 
 			setStartPoint();
 			undefinedColor = primaryColor;
+			anotherColor = secundaryColor;
 			undefined = true;
 
 		}
 
-		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_RIGHT)){
 
 			setStartPoint();
 			undefinedColor = secundaryColor;
+			anotherColor = primaryColor;
 			undefined = true;
 
 		}
@@ -768,13 +507,15 @@ public class EtyllicPaint extends Application{
 
 			setStartPoint();
 			undefinedColor = primaryColor;
+			anotherColor = secundaryColor;
 			undefined = true;
 
 		}
 
-		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_RIGHT)){
 			setStartPoint();
 			undefinedColor = secundaryColor;
+			anotherColor = primaryColor;
 			undefined = true;
 		}
 
@@ -793,6 +534,7 @@ public class EtyllicPaint extends Application{
 
 			setStartPoint();
 			undefinedColor = primaryColor;
+			anotherColor = secundaryColor;
 			undefined = true;
 
 		}
@@ -800,6 +542,7 @@ public class EtyllicPaint extends Application{
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 			setStartPoint();
 			undefinedColor = secundaryColor;
+			anotherColor = primaryColor;
 			undefined = true;
 		}
 
@@ -833,8 +576,6 @@ public class EtyllicPaint extends Application{
 
 	private void drawRect(){
 
-		screenGraphics.setColor(undefinedColor);
-
 		int ix = startPointX;
 		int difx = mx-startPointX;
 		int iy = startPointY;
@@ -848,12 +589,22 @@ public class EtyllicPaint extends Application{
 			iy = my;
 			dify =-dify;
 		}
-
-		screenGraphics.drawRect(ix-startScreenX, iy-startScreenY, difx, dify);
+		
+		if(rectDraw){
+			screenGraphics.setColor(undefinedColor);
+			screenGraphics.drawRect(ix-startScreenX, iy-startScreenY, difx, dify);
+		}else{
+			screenGraphics.setColor(anotherColor);
+			screenGraphics.fillRect(ix-startScreenX, iy-startScreenY, difx, dify);
+			
+			screenGraphics.setColor(undefinedColor);	
+			screenGraphics.drawRect(ix-startScreenX, iy-startScreenY, difx, dify);
+		}
 
 	}
 
 	private void drawOval(){
+		
 		screenGraphics.setColor(undefinedColor);
 
 		int ix = startPointX;
@@ -905,23 +656,62 @@ public class EtyllicPaint extends Application{
 
 	private void drawUndefinedRect(Grafico g){
 
-		g.setColor(undefinedColor);
-
-		int ix = startPointX;
 		int difx = mx-startPointX;
-		int iy = startPointY;
 		int dify = my-startPointY;
 
-		if(mx<startPointX){
-			ix = mx;
-			difx =-difx;
-		}
-		if(my<startPointY){
-			iy = my;
-			dify =-dify;
+		int ix = startPointX;
+		int iy = startPointY;
+
+		boolean xflag = false;
+		boolean yflag = false;
+		
+		//if(!shift){
+
+			if(difx<0){
+				ix = mx;
+				//ix += difx;
+				difx =-difx;
+				xflag = true;
+			}
+			if(dify<0){
+				iy = my;
+				//iy += dify;
+				dify =-dify;
+				yflag = true;
+			}
+
+		//}else{
+		if(shift){
+						
+			if(difx<dify){
+				
+				difx += dify-difx;
+				
+				if(xflag){
+					ix += dify-difx;
+				}
+				
+			}else if(dify<difx){
+				dify += difx-dify;
+				if(yflag){
+					iy += difx-dify;
+				}
+			}
+			
 		}
 
-		g.drawRect(ix, iy, difx, dify);
+		if(rectDraw){
+			g.setColor(undefinedColor);
+			g.drawRect(ix, iy, difx, dify);
+		}else{
+			g.setColor(anotherColor);
+			g.fillRect(ix, iy, difx, dify);
+			
+			g.setColor(undefinedColor);	
+			g.drawRect(ix, iy, difx, dify);
+		}
+		
+
 	}
 
 	private void drawUndefinedOval(Grafico g){
