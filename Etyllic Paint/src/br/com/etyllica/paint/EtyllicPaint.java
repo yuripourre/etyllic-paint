@@ -87,7 +87,7 @@ public class EtyllicPaint extends PaintInterface{
 	private RadioButton drawRoundButton;
 	private RadioButton fillRoundButton;
 	private boolean roundDraw = true;
-	private int roundBorder = 12;
+	private int roundBorder = 16;
 
 	private Color undefinedColor = primaryColor;
 	private Color anotherColor = secundaryColor;
