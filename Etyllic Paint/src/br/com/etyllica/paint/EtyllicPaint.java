@@ -4,11 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import br.com.etyllica.core.control.mouse.MouseButton;
 import br.com.etyllica.core.event.GUIAction;
 import br.com.etyllica.core.event.GUIEvent;
-import br.com.etyllica.core.event.KeyState;
 import br.com.etyllica.core.event.KeyboardEvent;
 import br.com.etyllica.core.event.PointerEvent;
 import br.com.etyllica.core.event.Tecla;
@@ -17,6 +18,7 @@ import br.com.etyllica.gui.Panel;
 import br.com.etyllica.gui.RadioGroup;
 import br.com.etyllica.gui.icon.ImageIcon;
 import br.com.etyllica.gui.radio.RadioButton;
+import br.com.etyllica.linear.vector.IntVector2D;
 
 public class EtyllicPaint extends PaintInterface{
 
@@ -70,10 +72,14 @@ public class EtyllicPaint extends PaintInterface{
 	private RadioButton drawRectButton;
 	private RadioButton fillRectButton;
 	private boolean rectDraw = true;
-	
+
 	private RadioButton poly;
 
 	private RadioButton oval;
+	private RadioButton drawOvalButton;
+	private RadioButton fillOvalButton;
+	private boolean ovalDraw = true;
+
 	private RadioButton round;
 
 	private Color undefinedColor = primaryColor;
@@ -90,7 +96,7 @@ public class EtyllicPaint extends PaintInterface{
 		int toolBarY = 0;
 		int toolBarColumns = 2;
 		int buttonSize = 48;
-		
+
 		loadingPhrase = "Loading Panel...";
 		panel = new Panel(toolBarX,toolBarY,startScreenX,h);
 		add(panel);
@@ -192,18 +198,19 @@ public class EtyllicPaint extends PaintInterface{
 		rect.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRectMode"));
 		toolbarGroup.add(rect);
 		add(rect);
-		
+
 		//TODO Rect Options
 		RadioGroup rectGroup = new RadioGroup();
-		
+
 		drawRectButton = new RadioButton(toolBarX, 400, buttonSize*2, buttonSize);
 		drawRectButton.setCenterLabel(new ImageIcon("rect.png"));
 		drawRectButton.setAlt("Draw Rectangle");
 		drawRectButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRectModeDraw"));
 		rectGroup.add(drawRectButton);
+		drawRectButton.setChecked(true);
 		drawRectButton.setVisible(false);
 		add(drawRectButton);
-		
+
 		fillRectButton = new RadioButton(toolBarX, 400+buttonSize+2, buttonSize*2, buttonSize);
 		fillRectButton.setCenterLabel(new ImageIcon("rectfilled.png"));
 		fillRectButton.setAlt("Fill Rectangle");
@@ -220,9 +227,29 @@ public class EtyllicPaint extends PaintInterface{
 
 		oval = new RadioButton(toolBarX,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
 		oval.setCenterLabel(new ImageIcon("oval.png"));
-		oval.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_OVAL));
+		oval.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setOvalMode"));
 		toolbarGroup.add(oval);
 		add(oval);
+
+		//TODO Oval Options
+		RadioGroup ovalGroup = new RadioGroup();
+
+		drawOvalButton = new RadioButton(toolBarX, 400, buttonSize*2, buttonSize);
+		drawOvalButton.setCenterLabel(new ImageIcon("oval.png"));
+		drawOvalButton.setAlt("Draw Rectangle");
+		drawOvalButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setOvalModeDraw"));
+		ovalGroup.add(drawOvalButton);
+		drawOvalButton.setChecked(true);
+		drawOvalButton.setVisible(false);
+		add(drawOvalButton);
+
+		fillOvalButton = new RadioButton(toolBarX, 400+buttonSize+2, buttonSize*2, buttonSize);
+		fillOvalButton.setCenterLabel(new ImageIcon("ovalfilled.png"));
+		fillOvalButton.setAlt("Fill Rectangle");
+		fillOvalButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setOvalModeFill"));
+		ovalGroup.add(fillOvalButton);
+		fillOvalButton.setVisible(false);
+		add(fillOvalButton);
 
 		round = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
 		round.setCenterLabel(new ImageIcon("round.png"));
@@ -264,32 +291,53 @@ public class EtyllicPaint extends PaintInterface{
 
 	public void setRectMode() {
 		setMode(PaintMode.DRAW_RECT);
-		
 		showRectCheckButtons();
 	}
-	
+
 	private void showRectCheckButtons(){
 		drawRectButton.setVisible(true);
 		fillRectButton.setVisible(true);
 	}
-		
+
+	public void setOvalMode() {
+		setMode(PaintMode.DRAW_OVAL);
+		showOvalCheckButtons();
+	}
+
+	private void showOvalCheckButtons(){
+		drawOvalButton.setVisible(true);
+		fillOvalButton.setVisible(true);
+	}
+
 	public void setRectModeDraw(){
 		rectDraw = true;
 	}
-	
+
 	public void setRectModeFill(){
 		rectDraw = false;
 	}
-	
+
+	public void setOvalModeDraw(){
+		ovalDraw = true;
+	}
+
+	public void setOvalModeFill(){
+		ovalDraw = false;
+	}
+
 	public void setMode(PaintMode mode) {
 		this.mode = mode;
 		resetMode();
 	}
-	
+
 	private void resetMode(){
 		//Reset Rect
 		drawRectButton.setVisible(false);
 		fillRectButton.setVisible(false);
+
+		//Reset Oval
+		drawOvalButton.setVisible(false);
+		fillOvalButton.setVisible(false);
 	}
 
 	public void openColorPickerWindow() {
@@ -323,9 +371,7 @@ public class EtyllicPaint extends PaintInterface{
 		if(mode==PaintMode.DRAW_RECT){
 
 			if(undefined){
-
 				drawUndefinedRect(g);
-
 			}
 
 		}
@@ -374,7 +420,7 @@ public class EtyllicPaint extends PaintInterface{
 
 		mx = event.getX();
 		my = event.getY();
-		
+
 		//TODO Change to colision
 		if((mx>startScreenX)&&(my>startScreenY&&(my<colorToolBarY))){
 
@@ -387,8 +433,8 @@ public class EtyllicPaint extends PaintInterface{
 			case DROPPER:
 				dropperModeEvent(event);
 				break;
-				
-			//TODO Just for now
+
+				//TODO Just for now
 			case PAINT_BRUSH:
 			case PENCIL:
 				pencilModeEvent(event);
@@ -426,8 +472,9 @@ public class EtyllicPaint extends PaintInterface{
 
 			//TODO Floodfill with primary color
 
-			screenGraphics.setColor(primaryColor);
-			screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
+			//screenGraphics.setColor(primaryColor);
+			//screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
+			floodFill(mx-startScreenX, my-startScreenY, primaryColor.getRGB());
 
 		}
 
@@ -435,8 +482,9 @@ public class EtyllicPaint extends PaintInterface{
 
 			//TODO Floodfill with secundary color
 
-			screenGraphics.setColor(secundaryColor);
-			screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
+			//screenGraphics.setColor(secundaryColor);
+			//screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
+			floodFill(mx-startScreenX, my-startScreenY, secundaryColor.getRGB());
 		}
 
 	}
@@ -536,10 +584,9 @@ public class EtyllicPaint extends PaintInterface{
 			undefinedColor = primaryColor;
 			anotherColor = secundaryColor;
 			undefined = true;
-
 		}
 
-		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_RIGHT)){
 			setStartPoint();
 			undefinedColor = secundaryColor;
 			anotherColor = primaryColor;
@@ -552,26 +599,27 @@ public class EtyllicPaint extends PaintInterface{
 			undefined = false;
 
 		}
+
 	}
-	
+
 	private void dropperModeEvent(PointerEvent event){
 
 		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
 			if(mx>startScreenX&&my>startScreenY){
-								
+
 				setPrimaryColor(new Color(screen.getRGB(mx-startScreenX, my-startScreenY)));
-				
+
 			}
 		}
-		
+
 		if(event.getPressed(MouseButton.MOUSE_BUTTON_RIGHT)){
 			if(mx>startScreenX&&my>startScreenY){
-								
+
 				setSecundaryColor(new Color(screen.getRGB(mx-startScreenX, my-startScreenY)));
-				
+
 			}
 		}
-		
+
 	}
 
 	private void setStartPoint(){
@@ -609,14 +657,14 @@ public class EtyllicPaint extends PaintInterface{
 			iy = my;
 			dify =-dify;
 		}
-		
+
 		if(rectDraw){
 			screenGraphics.setColor(undefinedColor);
 			screenGraphics.drawRect(ix-startScreenX, iy-startScreenY, difx, dify);
 		}else{
 			screenGraphics.setColor(anotherColor);
 			screenGraphics.fillRect(ix-startScreenX, iy-startScreenY, difx, dify);
-			
+
 			screenGraphics.setColor(undefinedColor);	
 			screenGraphics.drawRect(ix-startScreenX, iy-startScreenY, difx, dify);
 		}
@@ -624,8 +672,6 @@ public class EtyllicPaint extends PaintInterface{
 	}
 
 	private void drawOval(){
-		
-		screenGraphics.setColor(undefinedColor);
 
 		int ix = startPointX;
 		int difx = mx-startPointX;
@@ -641,7 +687,16 @@ public class EtyllicPaint extends PaintInterface{
 			dify =-dify;
 		}
 
-		screenGraphics.drawOval(ix-startScreenX, iy-startScreenY, difx, dify);
+		if(ovalDraw){
+			screenGraphics.setColor(undefinedColor);
+			screenGraphics.drawOval(ix-startScreenX, iy-startScreenY, difx, dify);
+		}else{
+			screenGraphics.setColor(anotherColor);
+			screenGraphics.fillOval(ix-startScreenX, iy-startScreenY, difx, dify);
+
+			screenGraphics.setColor(undefinedColor);	
+			screenGraphics.drawOval(ix-startScreenX, iy-startScreenY, difx, dify);
+		}
 
 	}
 
@@ -684,7 +739,7 @@ public class EtyllicPaint extends PaintInterface{
 
 		boolean xflag = false;
 		boolean yflag = false;
-		
+
 		//if(!shift){
 
 			if(difx<0){
@@ -700,42 +755,40 @@ public class EtyllicPaint extends PaintInterface{
 				yflag = true;
 			}
 
-		//}else{
-		if(shift){
-						
-			if(difx<dify){
-				
-				difx += dify-difx;
-				
-				if(xflag){
-					ix += dify-difx;
-				}
-				
-			}else if(dify<difx){
-				dify += difx-dify;
-				if(yflag){
-					iy += difx-dify;
-				}
-			}
-			
-		}
+			//}else{
+			if(shift){
 
-		if(rectDraw){
-			g.setColor(undefinedColor);
-			g.drawRect(ix, iy, difx, dify);
-		}else{
-			g.setColor(anotherColor);
-			g.fillRect(ix, iy, difx, dify);
-			
-			g.setColor(undefinedColor);	
-			g.drawRect(ix, iy, difx, dify);
-		}
-		
+				if(difx<dify){
+
+					difx += dify-difx;
+
+					if(xflag){
+						ix += dify-difx;
+					}
+
+				}else if(dify<difx){
+					dify += difx-dify;
+					if(yflag){
+						iy += difx-dify;
+					}
+				}
+
+			}
+
+			if(rectDraw){
+				g.setColor(undefinedColor);
+				g.drawRect(ix, iy, difx, dify);
+			}else{
+				g.setColor(anotherColor);
+				g.fillRect(ix, iy, difx, dify);
+
+				g.setColor(undefinedColor);	
+				g.drawRect(ix, iy, difx, dify);
+			}
 
 	}
 
 	private void drawUndefinedOval(Grafico g){
-		g.setColor(undefinedColor);
 
 		int ix = startPointX;
 		int difx = mx-startPointX;
@@ -750,8 +803,52 @@ public class EtyllicPaint extends PaintInterface{
 			iy = my;
 			dify =-dify;
 		}
+		
+		if(ovalDraw){
+			g.setColor(undefinedColor);
+			g.drawOval(ix, iy, difx, dify);			
+		}else{
+			g.setColor(anotherColor);
+			g.fillOval(ix, iy, difx, dify);
 
-		g.drawOval(ix, iy, difx, dify);
+			g.setColor(undefinedColor);	
+			g.drawOval(ix, iy, difx, dify);
+		}
+	}
+
+	private void floodFill(int mx, int my, int paintColor){
+
+		int w = screen.getWidth();
+		int h = screen.getHeight();
+
+		int searchColor = screen.getRGB(mx, my); 
+
+		boolean[][] painted = new boolean[w][h];
+
+		if(screen.getRGB(mx,my)==searchColor && !painted[mx][my]){
+
+			Queue<IntVector2D> queue = new LinkedList<IntVector2D>();
+			queue.add(new IntVector2D(mx, my));
+
+			while (!queue.isEmpty()) {
+				IntVector2D p = queue.remove();
+
+				if ((p.getX() >= 0) && (p.getX() < w &&
+						(p.getY() >= 0) && (p.getY() < h))) {
+					if (!painted[p.getX()][p.getY()] && (screen.getRGB((int)p.getX(), (int)p.getY())==searchColor)) {
+						screen.setRGB(p.getX(), p.getY(), paintColor);
+						painted[p.getX()][p.getY()] = true;
+
+						queue.add(new IntVector2D(p.getX() + 1, p.getY()));
+						queue.add(new IntVector2D(p.getX() - 1, p.getY()));
+						queue.add(new IntVector2D(p.getX(), p.getY() + 1));
+						queue.add(new IntVector2D(p.getX(), p.getY() - 1));
+
+					}
+				}
+			}
+		}
+
 	}
 
 }
