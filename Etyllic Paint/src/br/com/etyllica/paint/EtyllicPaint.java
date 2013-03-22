@@ -26,6 +26,8 @@ public class EtyllicPaint extends PaintInterface{
 		super(w, h);
 	}
 
+	private final int REFRESH_INTERVAL = 15;
+	
 	private boolean undefined = false;
 
 	private BufferedImage screen;
@@ -273,6 +275,8 @@ public class EtyllicPaint extends PaintInterface{
 		setMode(PaintMode.RECTANGULAR_MARK);
 		rectangularMark.mark();
 
+		updateAtFixedRate(REFRESH_INTERVAL);
+		
 		loading = 100;
 
 	}
@@ -484,24 +488,31 @@ public class EtyllicPaint extends PaintInterface{
 
 	}
 
+	private boolean erasing = false;
 	private int eraserSize = 10;
 	
 	private void eraserModeEvent(PointerEvent event) {
 				
 		//Erase
-		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
-			screenGraphics.setColor(secundaryColor);
-			screenGraphics.fillRect(mx-startScreenX, my-startScreenY, eraserSize, eraserSize);
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
+			
+			erasing = true;
+			
 		}
-
+		else if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
+			
+			erasing = false;
+			
+		}
+				
 	}
 	
 	private void drawEraser(Grafico g){
 		g.setColor(secundaryColor);
-		g.fillRect(mx, my, eraserSize, eraserSize);
+		g.fillRect(mx-eraserSize/2, my-eraserSize/2, eraserSize, eraserSize);
 		
 		g.setColor(Color.BLACK);
-		g.drawRect(mx, my, eraserSize, eraserSize);
+		g.drawRect(mx-eraserSize/2, my-eraserSize/2, eraserSize, eraserSize);
 	}
 
 	private int startPointX = 0;
@@ -524,16 +535,6 @@ public class EtyllicPaint extends PaintInterface{
 		}
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
 			pencilRightPressed = false;
-		}
-
-		if(pencilLeftPressed){
-
-			drawPixel(primaryColor);
-
-		}else if(pencilRightPressed){
-
-			drawPixel(secundaryColor);
-
 		}
 
 	}
@@ -864,6 +865,26 @@ public class EtyllicPaint extends PaintInterface{
 			}
 		}
 
+	}
+	
+	@Override
+	public void timeUpdate(){
+
+		if(erasing){
+			screenGraphics.setColor(secundaryColor);
+			screenGraphics.fillRect(mx-startScreenX-eraserSize/2, my-startScreenY-eraserSize/2, eraserSize, eraserSize);
+		}
+		
+		//TODO DrawLine
+		if(pencilLeftPressed){
+
+			drawPixel(primaryColor);
+
+		}else if(pencilRightPressed){
+
+			drawPixel(secundaryColor);
+
+		}
 	}
 
 }
