@@ -83,6 +83,11 @@ public class EtyllicPaint extends PaintInterface{
 	private boolean ovalDraw = true;
 
 	private RadioButton round;
+    //g.drawRoundRect(10,10,50,100,10,10);
+	private RadioButton drawRoundButton;
+	private RadioButton fillRoundButton;
+	private boolean roundDraw = true;
+	private int roundBorder = 12;
 
 	private Color undefinedColor = primaryColor;
 	private Color anotherColor = secundaryColor;
@@ -169,7 +174,7 @@ public class EtyllicPaint extends PaintInterface{
 		add(brush);
 
 		airBrush = new RadioButton(toolBarX,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
-		//http://www.keywordpictures.com/abuse/spray%20can%20icon///
+		//http://www.keywordpictures.com/abuse/spray%20can%20icon/
 		airBrush.setCenterLabel(new ImageIcon("spray_can.png"));
 		airBrush.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.SPRAY));
 		toolbarGroup.add(airBrush);
@@ -255,9 +260,29 @@ public class EtyllicPaint extends PaintInterface{
 
 		round = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
 		round.setCenterLabel(new ImageIcon("round.png"));
-		round.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_ROUND));
+		round.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRoundMode"));
 		toolbarGroup.add(round);
 		add(round);
+		
+		//TODO Round Options
+		RadioGroup roundGroup = new RadioGroup();
+
+		drawRoundButton = new RadioButton(toolBarX, 400, buttonSize*2, buttonSize);
+		drawRoundButton.setCenterLabel(new ImageIcon("round.png"));
+		drawRoundButton.setAlt("Draw Rectangle");
+		drawRoundButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRoundModeDraw"));
+		roundGroup.add(drawRoundButton);
+		drawRoundButton.setChecked(true);
+		drawRoundButton.setVisible(false);
+		add(drawRoundButton);
+
+		fillRoundButton = new RadioButton(toolBarX, 400+buttonSize+2, buttonSize*2, buttonSize);
+		fillRoundButton.setCenterLabel(new ImageIcon("roundfilled.png"));
+		fillRoundButton.setAlt("Fill Rectangle");
+		fillRoundButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRoundModeFill"));
+		roundGroup.add(fillRoundButton);
+		fillRoundButton.setVisible(false);
+		add(fillRoundButton);
 
 		loading = 70;
 
@@ -307,10 +332,20 @@ public class EtyllicPaint extends PaintInterface{
 		setMode(PaintMode.DRAW_OVAL);
 		showOvalCheckButtons();
 	}
-
+	
 	private void showOvalCheckButtons(){
 		drawOvalButton.setVisible(true);
 		fillOvalButton.setVisible(true);
+	}
+
+	public void setRoundMode() {
+		setMode(PaintMode.DRAW_ROUND);
+		showRoundCheckButtons();
+	}
+	
+	private void showRoundCheckButtons(){
+		drawRoundButton.setVisible(true);
+		fillRoundButton.setVisible(true);
 	}
 
 	public void setRectModeDraw(){
@@ -328,6 +363,14 @@ public class EtyllicPaint extends PaintInterface{
 	public void setOvalModeFill(){
 		ovalDraw = false;
 	}
+	
+	public void setRoundModeDraw(){
+		roundDraw = true;
+	}
+
+	public void setRoundModeFill(){
+		roundDraw = false;
+	}
 
 	public void setMode(PaintMode mode) {
 		this.mode = mode;
@@ -342,6 +385,10 @@ public class EtyllicPaint extends PaintInterface{
 		//Reset Oval
 		drawOvalButton.setVisible(false);
 		fillOvalButton.setVisible(false);
+		
+		//Reset Round
+		drawRoundButton.setVisible(false);
+		fillRoundButton.setVisible(false);
 	}
 
 	public void openColorPickerWindow() {
@@ -388,6 +435,14 @@ public class EtyllicPaint extends PaintInterface{
 
 			if(undefined){
 				drawUndefinedOval(g);
+			}
+
+		}
+		
+		if(mode==PaintMode.DRAW_ROUND){
+
+			if(undefined){
+				drawUndefinedRound(g);
 			}
 
 		}
@@ -474,7 +529,7 @@ public class EtyllicPaint extends PaintInterface{
 				ovalModeEvent(event);
 				break;
 			case DRAW_ROUND:
-
+				roundModeEvent(event);
 				break;
 
 			}
@@ -629,6 +684,33 @@ public class EtyllicPaint extends PaintInterface{
 		}
 
 	}
+	
+	private void roundModeEvent(PointerEvent event){
+
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
+
+			setStartPoint();
+			undefinedColor = primaryColor;
+			anotherColor = secundaryColor;
+			undefined = true;
+		}
+
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_RIGHT)){
+			setStartPoint();
+			undefinedColor = secundaryColor;
+			anotherColor = primaryColor;
+			undefined = true;
+		}
+
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)||event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+
+			drawRoundRect();
+			undefined = false;
+
+		}
+
+	}
+
 
 	private void dropperModeEvent(PointerEvent event){
 
@@ -724,6 +806,35 @@ public class EtyllicPaint extends PaintInterface{
 
 			screenGraphics.setColor(undefinedColor);	
 			screenGraphics.drawOval(ix-startScreenX, iy-startScreenY, difx, dify);
+		}
+
+	}
+	
+	private void drawRoundRect(){
+
+		int ix = startPointX;
+		int difx = mx-startPointX;
+		int iy = startPointY;
+		int dify = my-startPointY;
+
+		if(mx<startPointX){
+			ix = mx;
+			difx =-difx;
+		}
+		if(my<startPointY){
+			iy = my;
+			dify =-dify;
+		}
+
+		if(roundDraw){
+			screenGraphics.setColor(undefinedColor);
+			screenGraphics.drawRoundRect(ix-startScreenX, iy-startScreenY, difx, dify,roundBorder,roundBorder);
+		}else{
+			screenGraphics.setColor(anotherColor);
+			screenGraphics.fillRoundRect(ix-startScreenX, iy-startScreenY, difx, dify,roundBorder,roundBorder);
+
+			screenGraphics.setColor(undefinedColor);	
+			screenGraphics.drawRoundRect(ix-startScreenX, iy-startScreenY, difx, dify,roundBorder,roundBorder);
 		}
 
 	}
@@ -841,6 +952,35 @@ public class EtyllicPaint extends PaintInterface{
 
 			g.setColor(undefinedColor);	
 			g.drawOval(ix, iy, difx, dify);
+		}
+	}
+	
+	private void drawUndefinedRound(Grafico g){
+
+		int ix = startPointX;
+		int difx = mx-startPointX;
+		int iy = startPointY;
+		int dify = my-startPointY;
+
+		if(mx<startPointX){
+			ix = mx;
+			difx =-difx;
+		}
+		if(my<startPointY){
+			iy = my;
+			dify =-dify;
+		}
+		
+		if(roundDraw){
+			g.setColor(undefinedColor);
+			g.drawRoundRect(ix, iy, difx, dify,roundBorder,roundBorder);	
+		}else{
+			g.setColor(anotherColor);
+			g.fillRoundRect(ix, iy, difx, dify,roundBorder,roundBorder);
+			
+
+			g.setColor(undefinedColor);	
+			g.drawRoundRect(ix, iy, difx, dify,roundBorder,roundBorder);
 		}
 	}
 
