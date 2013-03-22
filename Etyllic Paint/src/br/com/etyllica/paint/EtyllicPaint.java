@@ -419,6 +419,18 @@ public class EtyllicPaint extends PaintInterface{
 			shift = false;
 			System.out.println("Shift false");
 		}
+		
+		//Eraser Growing
+		if(event.getPressed(Tecla.TSK_IGUAL)){
+			if(mode==PaintMode.ERASER){
+				eraserSize+=2;
+			}
+		}
+		else if(event.getPressed(Tecla.TSK_MENOS)){
+			if(mode==PaintMode.ERASER){
+				eraserSize-=2;
+			}
+		}
 
 		return GUIEvent.NONE;
 	}
