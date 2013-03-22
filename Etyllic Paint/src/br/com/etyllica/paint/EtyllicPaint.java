@@ -360,6 +360,10 @@ public class EtyllicPaint extends PaintInterface{
 			g.drawImage(screen, startScreenX, startScreenY);
 		}
 
+		if(mode==PaintMode.ERASER){
+			drawEraser(g);
+		}
+		
 		if(mode==PaintMode.DRAW_LINE){
 
 			if(undefined){
@@ -429,6 +433,10 @@ public class EtyllicPaint extends PaintInterface{
 			case PAINT_CAN:
 				paintCanModeEvent(event);
 				break;
+				
+			case ERASER:
+				eraserModeEvent(event);
+				break;
 
 			case DROPPER:
 				dropperModeEvent(event);
@@ -464,29 +472,36 @@ public class EtyllicPaint extends PaintInterface{
 		return GUIEvent.NONE;
 	}
 
-	public void paintCanModeEvent(PointerEvent event) {
-
-		//TODO FloodFill from mx my
+	private void paintCanModeEvent(PointerEvent event) {
 
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
-
-			//TODO Floodfill with primary color
-
-			//screenGraphics.setColor(primaryColor);
-			//screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
 			floodFill(mx-startScreenX, my-startScreenY, primaryColor.getRGB());
-
 		}
 
 		if(event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
-
-			//TODO Floodfill with secundary color
-
-			//screenGraphics.setColor(secundaryColor);
-			//screenGraphics.fillRect(0, 0, screen.getWidth(), screen.getHeight());
 			floodFill(mx-startScreenX, my-startScreenY, secundaryColor.getRGB());
 		}
 
+	}
+
+	private int eraserSize = 10;
+	
+	private void eraserModeEvent(PointerEvent event) {
+				
+		//Erase
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)){
+			screenGraphics.setColor(secundaryColor);
+			screenGraphics.fillRect(mx-startScreenX, my-startScreenY, eraserSize, eraserSize);
+		}
+
+	}
+	
+	private void drawEraser(Grafico g){
+		g.setColor(secundaryColor);
+		g.fillRect(mx, my, eraserSize, eraserSize);
+		
+		g.setColor(Color.BLACK);
+		g.drawRect(mx, my, eraserSize, eraserSize);
 	}
 
 	private int startPointX = 0;
