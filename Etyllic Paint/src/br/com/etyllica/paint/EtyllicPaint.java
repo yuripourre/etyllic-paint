@@ -1,5 +1,6 @@
 package br.com.etyllica.paint;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -16,7 +17,7 @@ import br.com.etyllica.core.event.Tecla;
 import br.com.etyllica.core.video.Grafico;
 import br.com.etyllica.gui.Panel;
 import br.com.etyllica.gui.RadioGroup;
-import br.com.etyllica.gui.icon.ImageIcon;
+import br.com.etyllica.gui.label.ImageLabel;
 import br.com.etyllica.gui.radio.RadioButton;
 import br.com.etyllica.linear.vector.IntVector2D;
 
@@ -54,6 +55,8 @@ public class EtyllicPaint extends PaintInterface{
 
 	private RadioButton freeMark;
 	private RadioButton rectangularMark;
+	private final float dash1[] = { 10.0f };
+	private final BasicStroke dashed = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash1, 0.0f);
 
 	private RadioButton eraser;
 	private RadioButton paintCan;
@@ -83,7 +86,6 @@ public class EtyllicPaint extends PaintInterface{
 	private boolean ovalDraw = true;
 
 	private RadioButton round;
-    //g.drawRoundRect(10,10,50,100,10,10);
 	private RadioButton drawRoundButton;
 	private RadioButton fillRoundButton;
 	private boolean roundDraw = true;
@@ -105,29 +107,30 @@ public class EtyllicPaint extends PaintInterface{
 		int buttonSize = 48;
 
 		loadingPhrase = "Loading Panel...";
+		
 		panel = new Panel(toolBarX,toolBarY,startScreenX,h);
 		add(panel);
 
 		RadioGroup toolbarGroup = new RadioGroup();
 
-		loadingPhrase = "Loading Resources...";
+		loadingPhrase = "Loading Tools...";
 
 		freeMark = new RadioButton(toolBarX,toolBarY,buttonSize,buttonSize);
-		freeMark.setCenterLabel(new ImageIcon("freemark.png"));
+		freeMark.setCenterLabel(new ImageLabel("freemark.png"));
 		freeMark.setAlt("Free Form Select");
 		toolbarGroup.add(freeMark);
 		freeMark.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.FREE_MARK));
 		add(freeMark);
 
 		rectangularMark = new RadioButton(toolBarX+buttonSize+1,toolBarY,buttonSize,buttonSize);
-		rectangularMark.setCenterLabel(new ImageIcon("rectmark.png"));
+		rectangularMark.setCenterLabel(new ImageLabel("rectmark.png"));
 		toolbarGroup.add(rectangularMark);
 		rectangularMark.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.RECTANGULAR_MARK));
 		add(rectangularMark);
 
 		eraser = new RadioButton(toolBarX,toolBarY+buttonSize*1+1,buttonSize,buttonSize);
 		//From http://findicons.com/icon/441226/eraser?id=449660
-		eraser.setCenterLabel(new ImageIcon("eraser.png"));
+		eraser.setCenterLabel(new ImageLabel("eraser.png"));
 		eraser.setAlt("Eraser/Color Eraser");
 		eraser.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.ERASER));
 		toolbarGroup.add(eraser);
@@ -136,7 +139,7 @@ public class EtyllicPaint extends PaintInterface{
 
 		paintCan = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*1+1,buttonSize,buttonSize);
 		//http://www.softicons.com/free-icons/toolbar-icons/some-icons-by-scardi-shek/paint-icon
-		paintCan.setCenterLabel(new ImageIcon("paint.png"));
+		paintCan.setCenterLabel(new ImageLabel("paint.png"));
 		paintCan.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.PAINT_CAN));
 		toolbarGroup.add(paintCan);
 		add(paintCan);
@@ -144,7 +147,7 @@ public class EtyllicPaint extends PaintInterface{
 
 		dropper = new RadioButton(toolBarX,toolBarY+buttonSize*2+2,buttonSize,buttonSize);
 		//http://findicons.com/icon/238374/color_picker?id=238374
-		dropper.setCenterLabel(new ImageIcon("dropper.png"));
+		dropper.setCenterLabel(new ImageLabel("dropper.png"));
 		dropper.setAlt("Pick Color");
 		dropper.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DROPPER));
 		toolbarGroup.add(dropper);
@@ -152,7 +155,7 @@ public class EtyllicPaint extends PaintInterface{
 
 		magnify = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*2+2,buttonSize,buttonSize);
 		//http://findicons.com/icon/219105/find?id=356081
-		magnify.setCenterLabel(new ImageIcon("magnify.png"));
+		magnify.setCenterLabel(new ImageLabel("magnify.png"));
 		magnify.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.ZOOM));
 		toolbarGroup.add(magnify);
 		add(magnify);
@@ -160,7 +163,7 @@ public class EtyllicPaint extends PaintInterface{
 
 		pencil = new RadioButton(toolBarX,toolBarY+buttonSize*3+3,buttonSize,buttonSize);
 		//http://findicons.com/icon/226814/pencil?width=32
-		pencil.setCenterLabel(new ImageIcon("pencil.png"));
+		pencil.setCenterLabel(new ImageLabel("pencil.png"));
 		pencil.setAlt("Pencil");
 		pencil.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.PENCIL));
 		toolbarGroup.add(pencil);
@@ -168,39 +171,39 @@ public class EtyllicPaint extends PaintInterface{
 
 		brush = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*3+3,buttonSize,buttonSize);
 		//http://findicons.com/icon/237997/paintbrush?width=32
-		brush.setCenterLabel(new ImageIcon("paintbrush.png"));
+		brush.setCenterLabel(new ImageLabel("paintbrush.png"));
 		brush.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.PAINT_BRUSH));
 		toolbarGroup.add(brush);
 		add(brush);
 
 		airBrush = new RadioButton(toolBarX,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
 		//http://www.keywordpictures.com/abuse/spray%20can%20icon/
-		airBrush.setCenterLabel(new ImageIcon("spray_can.png"));
+		airBrush.setCenterLabel(new ImageLabel("spray_can.png"));
 		airBrush.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.SPRAY));
 		toolbarGroup.add(airBrush);
 		add(airBrush);
 
 		text = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*4+4,buttonSize,buttonSize);
-		text.setCenterLabel(new ImageIcon("text.png"));
+		text.setCenterLabel(new ImageLabel("text.png"));
 		text.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.TEXT));
 		toolbarGroup.add(text);
 		add(text);
 
 		line = new RadioButton(toolBarX,toolBarY+buttonSize*5+5,buttonSize,buttonSize);
-		line.setCenterLabel(new ImageIcon("line.png"));
+		line.setCenterLabel(new ImageLabel("line.png"));
 		line.setAlt("Line");
 		line.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_LINE));
 		toolbarGroup.add(line);
 		add(line);
 
 		curve = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*5+5,buttonSize,buttonSize);
-		curve.setCenterLabel(new ImageIcon("curve.png"));
+		curve.setCenterLabel(new ImageLabel("curve.png"));
 		curve.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_CURVE));
 		toolbarGroup.add(curve);
 		add(curve);
 
 		rect = new RadioButton(toolBarX,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
-		rect.setCenterLabel(new ImageIcon("rect.png"));
+		rect.setCenterLabel(new ImageLabel("rect.png"));
 		rect.setAlt("Rectangle");
 		rect.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRectMode"));
 		toolbarGroup.add(rect);
@@ -210,7 +213,7 @@ public class EtyllicPaint extends PaintInterface{
 		RadioGroup rectGroup = new RadioGroup();
 
 		drawRectButton = new RadioButton(toolBarX, 400, buttonSize*2, buttonSize);
-		drawRectButton.setCenterLabel(new ImageIcon("rect.png"));
+		drawRectButton.setCenterLabel(new ImageLabel("rect.png"));
 		drawRectButton.setAlt("Draw Rectangle");
 		drawRectButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRectModeDraw"));
 		rectGroup.add(drawRectButton);
@@ -219,7 +222,7 @@ public class EtyllicPaint extends PaintInterface{
 		add(drawRectButton);
 
 		fillRectButton = new RadioButton(toolBarX, 400+buttonSize+2, buttonSize*2, buttonSize);
-		fillRectButton.setCenterLabel(new ImageIcon("rectfilled.png"));
+		fillRectButton.setCenterLabel(new ImageLabel("rectfilled.png"));
 		fillRectButton.setAlt("Fill Rectangle");
 		fillRectButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRectModeFill"));
 		rectGroup.add(fillRectButton);
@@ -227,13 +230,13 @@ public class EtyllicPaint extends PaintInterface{
 		add(fillRectButton);
 
 		poly = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*6+6,buttonSize,buttonSize);
-		poly.setCenterLabel(new ImageIcon("poly.png"));
+		poly.setCenterLabel(new ImageLabel("poly.png"));
 		poly.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setMode", PaintMode.DRAW_POLY));
 		toolbarGroup.add(poly);
 		add(poly);
 
 		oval = new RadioButton(toolBarX,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
-		oval.setCenterLabel(new ImageIcon("oval.png"));
+		oval.setCenterLabel(new ImageLabel("oval.png"));
 		oval.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setOvalMode"));
 		toolbarGroup.add(oval);
 		add(oval);
@@ -242,7 +245,7 @@ public class EtyllicPaint extends PaintInterface{
 		RadioGroup ovalGroup = new RadioGroup();
 
 		drawOvalButton = new RadioButton(toolBarX, 400, buttonSize*2, buttonSize);
-		drawOvalButton.setCenterLabel(new ImageIcon("oval.png"));
+		drawOvalButton.setCenterLabel(new ImageLabel("oval.png"));
 		drawOvalButton.setAlt("Draw Rectangle");
 		drawOvalButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setOvalModeDraw"));
 		ovalGroup.add(drawOvalButton);
@@ -251,7 +254,7 @@ public class EtyllicPaint extends PaintInterface{
 		add(drawOvalButton);
 
 		fillOvalButton = new RadioButton(toolBarX, 400+buttonSize+2, buttonSize*2, buttonSize);
-		fillOvalButton.setCenterLabel(new ImageIcon("ovalfilled.png"));
+		fillOvalButton.setCenterLabel(new ImageLabel("ovalfilled.png"));
 		fillOvalButton.setAlt("Fill Rectangle");
 		fillOvalButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setOvalModeFill"));
 		ovalGroup.add(fillOvalButton);
@@ -259,7 +262,7 @@ public class EtyllicPaint extends PaintInterface{
 		add(fillOvalButton);
 
 		round = new RadioButton(toolBarX+buttonSize+1,toolBarY+buttonSize*7+7,buttonSize,buttonSize);
-		round.setCenterLabel(new ImageIcon("round.png"));
+		round.setCenterLabel(new ImageLabel("round.png"));
 		round.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRoundMode"));
 		toolbarGroup.add(round);
 		add(round);
@@ -268,7 +271,7 @@ public class EtyllicPaint extends PaintInterface{
 		RadioGroup roundGroup = new RadioGroup();
 
 		drawRoundButton = new RadioButton(toolBarX, 400, buttonSize*2, buttonSize);
-		drawRoundButton.setCenterLabel(new ImageIcon("round.png"));
+		drawRoundButton.setCenterLabel(new ImageLabel("round.png"));
 		drawRoundButton.setAlt("Draw Rectangle");
 		drawRoundButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRoundModeDraw"));
 		roundGroup.add(drawRoundButton);
@@ -277,7 +280,7 @@ public class EtyllicPaint extends PaintInterface{
 		add(drawRoundButton);
 
 		fillRoundButton = new RadioButton(toolBarX, 400+buttonSize+2, buttonSize*2, buttonSize);
-		fillRoundButton.setCenterLabel(new ImageIcon("roundfilled.png"));
+		fillRoundButton.setCenterLabel(new ImageLabel("roundfilled.png"));
 		fillRoundButton.setAlt("Fill Rectangle");
 		fillRoundButton.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new GUIAction(this, "setRoundModeFill"));
 		roundGroup.add(fillRoundButton);
@@ -410,7 +413,15 @@ public class EtyllicPaint extends PaintInterface{
 		else{
 			g.drawImage(screen, startScreenX, startScreenY);
 		}
+		
+		if(mode==PaintMode.RECTANGULAR_MARK){
 
+			if(undefined){
+				drawUndefinedRectangularMark(g);
+			}
+
+		}
+		
 		if(mode==PaintMode.ERASER){
 			drawEraser(g);
 		}
@@ -501,6 +512,10 @@ public class EtyllicPaint extends PaintInterface{
 
 			switch(mode){
 
+			case RECTANGULAR_MARK:
+				rectangularMarkModeEvent(event);
+				break;
+			
 			case PAINT_CAN:
 				paintCanModeEvent(event);
 				break;
@@ -633,6 +648,25 @@ public class EtyllicPaint extends PaintInterface{
 
 	}
 
+	private void rectangularMarkModeEvent(PointerEvent event){
+		
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
+			setStartPoint();
+			undefined = true;
+		}
+
+		if(event.getPressed(MouseButton.MOUSE_BUTTON_RIGHT)){
+			setStartPoint();
+			undefined = true;
+		}
+		
+		if(event.getReleased(MouseButton.MOUSE_BUTTON_LEFT)||event.getReleased(MouseButton.MOUSE_BUTTON_RIGHT)){
+
+			//TODO RectangularMark
+			undefined = false;
+		}
+	}
+	
 	private void rectModeEvent(PointerEvent event){
 
 		if(event.getPressed(MouseButton.MOUSE_BUTTON_LEFT)){
@@ -866,7 +900,64 @@ public class EtyllicPaint extends PaintInterface{
 
 		g.drawLine(startPointX, startPointY, mx, my);
 
-	}	
+	}
+	
+	private void drawUndefinedRectangularMark(Grafico g){
+
+		g.setStroke(dashed);
+		
+		int difx = mx-startPointX;
+		int dify = my-startPointY;
+
+		int ix = startPointX;
+		int iy = startPointY;
+
+		boolean xflag = false;
+		boolean yflag = false;
+
+		//if(!shift){
+
+			if(difx<0){
+				ix = mx;
+				//ix += difx;
+				difx =-difx;
+				xflag = true;
+			}
+			if(dify<0){
+				iy = my;
+				//iy += dify;
+				dify =-dify;
+				yflag = true;
+			}
+
+			//}else{
+			if(shift){
+
+				if(difx<dify){
+
+					difx += dify-difx;
+
+					if(xflag){
+						ix += dify-difx;
+					}
+
+				}else if(dify<difx){
+					dify += difx-dify;
+					if(yflag){
+						iy += difx-dify;
+					}
+				}
+
+			}
+
+			g.setColor(Color.BLACK);
+			g.drawRect(ix, iy, difx, dify);
+			
+			g.setColor(Color.WHITE);
+			g.drawRect(ix+1, iy+1, difx, dify);
+			
+
+	}
 
 	private void drawUndefinedRect(Grafico g){
 
@@ -978,7 +1069,6 @@ public class EtyllicPaint extends PaintInterface{
 			g.setColor(anotherColor);
 			g.fillRoundRect(ix, iy, difx, dify,roundBorder,roundBorder);
 			
-
 			g.setColor(undefinedColor);	
 			g.drawRoundRect(ix, iy, difx, dify,roundBorder,roundBorder);
 		}
@@ -1022,6 +1112,8 @@ public class EtyllicPaint extends PaintInterface{
 	@Override
 	public void timeUpdate(){
 
+		//System.out.println("TIME UP");
+		
 		if(erasing){
 			screenGraphics.setColor(secundaryColor);
 			screenGraphics.fillRect(mx-startScreenX-eraserSize/2, my-startScreenY-eraserSize/2, eraserSize, eraserSize);
