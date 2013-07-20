@@ -468,7 +468,7 @@ public class EtyllicPaint extends PaintInterface{
 		g.setColor(Color.WHITE);
 
 		if((mx>startScreenX)&&(my>startScreenY)){
-			g.escreveSombra(875, 530, Integer.toString(mx-startScreenX)+","+Integer.toString(my-startScreenY));
+			g.drawString(Integer.toString(mx-startScreenX)+","+Integer.toString(my-startScreenY),875, 530);
 		}
 
 	}
@@ -479,11 +479,13 @@ public class EtyllicPaint extends PaintInterface{
 		if(event.getPressed(Tecla.TSK_SHIFT_DIREITA)||event.getPressed(Tecla.TSK_SHIFT_ESQUERDA)){
 			shift = true;
 			System.out.println("Shift true");
+			return GUIEvent.UPDATE_MOUSE;
 		}
 
 		if(event.getReleased(Tecla.TSK_SHIFT_DIREITA)||event.getReleased(Tecla.TSK_SHIFT_ESQUERDA)){
 			shift = false;
 			System.out.println("Shift false");
+			return GUIEvent.UPDATE_MOUSE;
 		}
 		
 		//Eraser Growing
@@ -505,7 +507,7 @@ public class EtyllicPaint extends PaintInterface{
 	public GUIEvent updateMouse(PointerEvent event) {
 
 		mx = event.getX();
-		my = event.getY();
+		my = event.getY();		
 
 		//TODO Change to colision
 		if((mx>startScreenX)&&(my>startScreenY&&(my<colorToolBarY))){
@@ -537,6 +539,7 @@ public class EtyllicPaint extends PaintInterface{
 			case DRAW_LINE:
 				lineModeEvent(event);
 				break;
+				
 			case DRAW_RECT:
 				rectModeEvent(event);
 				break;
@@ -779,7 +782,29 @@ public class EtyllicPaint extends PaintInterface{
 		//screenGraphics.drawRect(mx-startScreenX, my-startScreenY, 1, 1);
 	}
 
+	//TODO If shift
 	private void drawLine(){
+		
+		if(shift){
+
+			int mydif = my-startPointY;
+			int mxdif = mx-startPointX;
+
+			if(my<startPointY){
+				mydif = startPointY-my;
+			}
+
+			if(mx<startPointX){
+				mxdif = startPointX-mx;	
+			}
+
+			if(mxdif>mydif){
+				my = startPointY;
+			}else if(mydif>mxdif){
+				mx = startPointX;
+			}
+
+		}
 
 		screenGraphics.setColor(undefinedColor);
 		screenGraphics.drawLine(startPointX-startScreenX, startPointY-startScreenY, mx-startScreenX, my-startScreenY);
