@@ -1,9 +1,10 @@
 
 
-import br.com.etyllica.Etyllica;
+import br.com.etyllica.EtyllicaFrame;
+import br.com.etyllica.context.Application;
 import br.com.etyllica.paint.EtyllicPaint;
 
-public class PaintFrame extends Etyllica {
+public class PaintFrame extends EtyllicaFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -11,10 +12,15 @@ public class PaintFrame extends Etyllica {
 		super(960, 540);
 	}
 	
-	@Override
-	public void startGame() {
-		
-		setMainApplication(new EtyllicPaint(w,h));
+	public static void main(String[] args){
+		PaintFrame frame = new PaintFrame();
+		frame.init();
 	}
 	
+	@Override
+	public Application startApplication() {
+		
+		return new EtyllicPaint(w,h);
+	}
+
 }
