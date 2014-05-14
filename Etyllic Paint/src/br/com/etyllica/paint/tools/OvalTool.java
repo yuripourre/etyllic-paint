@@ -3,37 +3,10 @@ package br.com.etyllica.paint.tools;
 import br.com.etyllica.core.graphics.Graphic;
 import br.com.etyllica.gui.radio.RadioButton;
 
-public class OvalTool extends DrawingTool implements Tool {
-
-	private RadioButton drawOvalButton;
-
-	private RadioButton fillOvalButton;
+public class OvalTool extends DrawAreaTool implements Tool {
 
 	public OvalTool(RadioButton drawOvalButton, RadioButton fillOvalButton) {
-		super();
-
-		this.drawOvalButton = drawOvalButton;
-
-		this.fillOvalButton = fillOvalButton;
-
-	}
-
-	@Override
-	public void select() {
-
-		drawOvalButton.setVisible(true);
-
-		fillOvalButton.setVisible(true);
-
-	}
-
-	@Override
-	public void deselect() {
-
-		drawOvalButton.setVisible(false);
-
-		fillOvalButton.setVisible(false);
-
+		super(drawOvalButton, fillOvalButton);
 	}
 
 	public void drawPermanent(int mx, int my) {

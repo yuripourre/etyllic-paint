@@ -3,12 +3,14 @@ package br.com.etyllica.paint.tools;
 import br.com.etyllica.core.graphics.Graphic;
 import br.com.etyllica.gui.radio.RadioButton;
 
-public class RectTool extends DrawAreaTool implements Tool {
+public class RoundRectTool extends DrawAreaTool {
 
-	public RectTool(RadioButton drawButton, RadioButton fillButton) {
-		super(drawButton, fillButton);
+	private int roundBorder = 16;
+	
+	public RoundRectTool(RadioButton drawRoundRectButton, RadioButton fillRoundRectButton) {
+		super(drawRoundRectButton, fillRoundRectButton);
 	}
-
+	
 	public void drawPermanent(int mx, int my) {
 
 		int ix = startPointX;
@@ -29,15 +31,15 @@ public class RectTool extends DrawAreaTool implements Tool {
 		if(draw) {
 
 			screen.setColor(undefinedColor);
-			screen.drawRect(ix-screenX, iy-screenY, difx, dify);
+			screen.drawRoundRect(ix-screenX, iy-screenY, difx, dify, roundBorder, roundBorder);
 
 		} else {
 
 			screen.setColor(anotherColor);
-			screen.fillRect(ix-screenX, iy-screenY, difx, dify);
+			screen.fillRoundRect(ix-screenX, iy-screenY, difx, dify, roundBorder, roundBorder);
 
 			screen.setColor(undefinedColor);	
-			screen.drawRect(ix-screenX, iy-screenY, difx, dify);
+			screen.drawRoundRect(ix-screenX, iy-screenY, difx, dify, roundBorder, roundBorder);
 		}
 
 	}
@@ -95,15 +97,15 @@ public class RectTool extends DrawAreaTool implements Tool {
 		if(draw) {
 			
 			g.setColor(undefinedColor);
-			g.drawRect(ix, iy, difx, dify);
+			g.drawRoundRect(ix, iy, difx, dify, roundBorder, roundBorder);
 			
 		} else {
 			
 			g.setColor(anotherColor);
-			g.fillRect(ix, iy, difx, dify);
+			g.fillRoundRect(ix, iy, difx, dify, roundBorder, roundBorder);
 
 			g.setColor(undefinedColor);	
-			g.drawRect(ix, iy, difx, dify);
+			g.drawRoundRect(ix, iy, difx, dify, roundBorder, roundBorder);
 			
 		}
 
