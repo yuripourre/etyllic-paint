@@ -10,7 +10,7 @@ public abstract class ToolImpl implements Tool {
 	protected int screenX = 0;
 	
 	protected int screenY = 0;
-	
+		
 	protected Color undefinedColor;
 	
 	protected Color anotherColor;
@@ -32,11 +32,7 @@ public abstract class ToolImpl implements Tool {
 	public ToolImpl(Graphics2D screen, int screenX, int screenY) {
 		super();
 		
-		this.screen = screen;
-		
-		this.screenX = screenX;
-		
-		this.screenY = screenY;
+		configureScreen(screen, screenX, screenY);
 		
 	}
 	
@@ -47,7 +43,7 @@ public abstract class ToolImpl implements Tool {
 		this.screenX = screenX;
 		
 		this.screenY = screenY;
-		
+				
 	}
 
 	public void setPrimaryColor(Color primaryColor) {

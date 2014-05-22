@@ -19,6 +19,7 @@ import br.com.etyllica.gui.RadioGroup;
 import br.com.etyllica.gui.label.ImageLabel;
 import br.com.etyllica.gui.radio.RadioButton;
 import br.com.etyllica.linear.vector.IntVector2D;
+import br.com.etyllica.paint.tools.LineTool;
 import br.com.etyllica.paint.tools.OvalTool;
 import br.com.etyllica.paint.tools.RectTool;
 import br.com.etyllica.paint.tools.RoundRectTool;
@@ -90,8 +91,6 @@ public class EtyllicPaint extends PaintInterface{
 	private RadioButton round;
 	private RadioButton drawRoundButton;
 	private RadioButton fillRoundButton;
-	private boolean roundDraw = true;
-	private int roundBorder = 16;
 
 	private Color undefinedColor = primaryColor;
 	private Color anotherColor = secundaryColor;
@@ -101,6 +100,8 @@ public class EtyllicPaint extends PaintInterface{
 	private boolean shift = false;
 
 	//List Tools
+	private LineTool lineTool;
+	
 	private RectTool rectTool;
 	
 	private OvalTool ovalTool;
@@ -200,7 +201,7 @@ public class EtyllicPaint extends PaintInterface{
 		line = new RadioButton(toolBarX,toolBarY+buttonSize*5+5,buttonSize,buttonSize);
 		line.setCenterLabel(new ImageLabel("line.png"));
 		line.setAlt("Line");
-		line.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new Action(this, "setMode", PaintMode.DRAW_LINE));
+		line.addAction(GUIEvent.MOUSE_LEFT_BUTTON_UP, new Action(this, "setLineMode"));
 		toolbarGroup.add(line);
 		add(line);
 
@@ -308,6 +309,8 @@ public class EtyllicPaint extends PaintInterface{
 		createScreen();
 
 		//Load Tools
+		lineTool = new LineTool();
+		
 		rectTool = new RectTool(drawRectButton, fillRectButton);
 		
 		ovalTool = new OvalTool(drawOvalButton, fillOvalButton);
@@ -346,11 +349,17 @@ public class EtyllicPaint extends PaintInterface{
 		tool.setSecundaryColor(secundaryColor);
 	}
 	
+	public void setLineMode() {
+		setMode(PaintMode.DRAW_LINE);
+
+		selectTool(lineTool);
+	}
+	
 	public void setRectMode() {
 		setMode(PaintMode.DRAW_RECT);
 
 		selectTool(rectTool);
-	}
+	}	
 
 	public void setOvalMode() {
 		setMode(PaintMode.DRAW_OVAL);
@@ -425,15 +434,7 @@ public class EtyllicPaint extends PaintInterface{
 			drawEraser(g);
 		}
 
-		if(mode==PaintMode.DRAW_LINE) {
-
-			if(temporary) {
-				drawUndefinedLine(g);
-			}
-
-		}
-
-		if((mode==PaintMode.DRAW_RECT)||(mode==PaintMode.DRAW_OVAL)||(mode==PaintMode.DRAW_ROUND)) {
+		if((mode==PaintMode.DRAW_RECT)||(mode==PaintMode.DRAW_OVAL)||(mode==PaintMode.DRAW_ROUND||mode==PaintMode.DRAW_LINE)) {
 
 			if(tool.isTemporary()) {
 			
@@ -524,11 +525,7 @@ public class EtyllicPaint extends PaintInterface{
 				pencilModeEvent(event);
 				break;
 
-			case DRAW_LINE:
-				lineModeEvent(event);
-				break;
-
-			
+			case DRAW_LINE:		
 			case DRAW_RECT:
 			case DRAW_OVAL:
 			case DRAW_ROUND:
@@ -611,33 +608,6 @@ public class EtyllicPaint extends PaintInterface{
 
 	}
 
-	private void lineModeEvent(PointerEvent event) {
-
-		if(event.onButtonDown(MouseButton.MOUSE_BUTTON_LEFT)) {
-
-			setStartPoint();
-			undefinedColor = primaryColor;
-			anotherColor = secundaryColor;
-			temporary = true;
-
-		}
-
-		if(event.onButtonDown(MouseButton.MOUSE_BUTTON_RIGHT)) {
-
-			setStartPoint();
-			undefinedColor = secundaryColor;
-			anotherColor = primaryColor;
-			temporary = true;
-
-		}
-
-		if(event.onButtonUp(MouseButton.MOUSE_BUTTON_LEFT)||event.onButtonUp(MouseButton.MOUSE_BUTTON_RIGHT)) {
-			drawLine();
-			temporary = false;
-		}
-
-	}
-
 	private void rectangularMarkModeEvent(PointerEvent event) {
 
 		if(event.onButtonDown(MouseButton.MOUSE_BUTTON_LEFT)) {
@@ -688,64 +658,6 @@ public class EtyllicPaint extends PaintInterface{
 		//screenGraphics.setColor(color);
 		screen.setRGB(mx-startScreenX, my-startScreenY, color.getRGB());
 		//screenGraphics.drawRect(mx-startScreenX, my-startScreenY, 1, 1);
-	}
-
-	//TODO If shift
-	private void drawLine() {
-
-		if(shift) {
-
-			int mydif = my-startPointY;
-			int mxdif = mx-startPointX;
-
-			if(my<startPointY) {
-				mydif = startPointY-my;
-			}
-
-			if(mx<startPointX) {
-				mxdif = startPointX-mx;	
-			}
-
-			if(mxdif>mydif) {
-				my = startPointY;
-			}else if(mydif>mxdif) {
-				mx = startPointX;
-			}
-
-		}
-
-		screenGraphics.setColor(undefinedColor);
-		screenGraphics.drawLine(startPointX-startScreenX, startPointY-startScreenY, mx-startScreenX, my-startScreenY);
-
-	}
-
-	private void drawUndefinedLine(Graphic g) {
-
-		g.setColor(undefinedColor);
-
-		if(shift) {
-
-			int mydif = my-startPointY;
-			int mxdif = mx-startPointX;
-
-			if(my<startPointY) {
-				mydif = startPointY-my;
-			}
-
-			if(mx<startPointX) {
-				mxdif = startPointX-mx;	
-			}
-
-			if(mxdif>mydif) {
-				my = startPointY;
-			}else if(mydif>mxdif) {
-				mx = startPointX;
-			}
-
-		}
-
-		g.drawLine(startPointX, startPointY, mx, my);
-
 	}
 
 	private void drawUndefinedRectangularMark(Graphic g) {
